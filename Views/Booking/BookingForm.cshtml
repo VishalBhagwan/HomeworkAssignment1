@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Booking Form";
+    var serviceType = ViewBag.ServiceType as string;
+}
+
+<h2>@serviceType</h2>
+
+<form id="bookingForm">
+    <input type="hidden" id="serviceType" value="@serviceType" />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="fullName">Full Name*</label>
+                <input type="text" class="form-control" id="fullName" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="phone">Phone*</label>
+                <input type="tel" class="form-control" id="phone" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="pickUpTime">Pick-Up Time*</label>
+                <input type="time" class="form-control" id="pickUpTime" required>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="reason">Reason*</label>
+                <input type="text" class="form-control" id="reason" required>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="vehicle">Vehicle*</label>
+                <select class="form-control" id="vehicle" required>
+                    <option value="">Select Vehicle</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="driver">Driver*</label>
+                <select class="form-control" id="driver" required>
+                    <option value="">Select Driver</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="pickUpAddress">Pick-Up Address</label>
+        <textarea class="form-control" id="pickUpAddress" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">BOOK AMBULANCE</button>
+</form>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            const serviceType = $('#serviceType').val();
+
+            // Populate vehicles and drivers
+            populateVehicles(serviceType);
+            populateDrivers(serviceType);
+
+            // Form submission
+            $('#bookingForm').submit(function(e) {
+                e.preventDefault();
+
+                const booking = {
+                    serviceType: serviceType,
+                    bookingID: DataService.generateGUID(),
+                    bookingFullName: $('#fullName').val(),
+                    bookingPhoneNumber: $('#phone').val(),
+                    bookingPickUp: $('#pickUpTime').val(),
+                    bookingReason: $('#reason').val(),
+                    vehicleID: $('#vehicle').val(),
+                    driverID: $('#driver').val(),
+                    bookingPickupAddress: $('#pickUpAddress').val(),
+                    bookingDate: new Date().toISOString(),
+                    isEmergency: false
+                };
+
+                // Save booking
+                DataService.addBooking(booking);
+
+                // Store for confirmation view
+                localStorage.setItem('currentBooking', JSON.stringify(booking));
+                window.location.href = '@Url.Action("ConfirmedBooking", "Booking")';
+            });
+
+            function populateVehicles(serviceType) {
+                const vehicles = DataService.getVehiclesByService(serviceType);
+                const $select = $('#vehicle');
+                $select.empty().append('<option value="">Select Vehicle</option>');
+
+                vehicles.forEach(vehicle => {
+                    $select.append($('<option>', {
+                        value: vehicle.vehicleID,
+                        text: vehicle.vehicleType
+                    }));
+                });
+            }
+
+            function populateDrivers(serviceType) {
+                const drivers = DataService.getDriversByService(serviceType);
+                const $select = $('#driver');
+                $select.empty().append('<option value="">Select Driver</option>');
+
+                drivers.forEach(driver => {
+                    $select.append($('<option>', {
+                        value: driver.driverID,
+                        text: `${driver.driverFirstName} ${driver.driverLastName}`
+                    }));
+                });
+            }
+        });
+    </script>
+}

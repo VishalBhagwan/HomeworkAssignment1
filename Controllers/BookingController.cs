@@ -10,7 +10,7 @@ namespace HomeworkAssignment1.Controllers
     public class BookingController : Controller
     {
         // GET: Booking
-        public ActionResult Index()
+        public ActionResult HomePage()
         {
             return View();
         }
@@ -18,6 +18,32 @@ namespace HomeworkAssignment1.Controllers
         public ActionResult SelectService() 
         {
             ViewBag.Service = Services.serviceTypes;
+            return View();
+        }
+
+        public ActionResult BookingForm(string serviceType)
+        {
+            if (!Services.serviceTypes.Contains(serviceType))
+            {
+                return RedirectToAction("SelectService");
+            }
+
+            ViewBag.Services = serviceType;
+            return View();
+        }
+
+        public ActionResult ConfirmedBooking() 
+        {
+            return View();
+        }
+
+        public ActionResult RideHistory()
+        {
+            return View();
+        }
+
+        public ActionResult ManagePage()
+        {
             return View();
         }
     }

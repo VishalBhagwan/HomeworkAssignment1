@@ -1,0 +1,135 @@
+﻿@model HomeworkAssignment1.Models.Manage
+
+@{
+    ViewBag.Title = "Manage Drivers and Vehicles";
+}
+
+<h2>Driver and Vehicle Management</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Drivers</h3>
+        <div class="input-group mb-3">
+            <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="searchDriverBtn">Search</button>
+            </div>
+        </div>
+        <table class="table" id="driversTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Service</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+        <button id="addDriverBtn" class="btn btn-success">Add Driver</button>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Vehicles</h3>
+        <table class="table" id="vehiclesTable">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Registration</th>
+                    <th>Service</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+        <button id="addVehicleBtn" class="btn btn-success">Add Vehicle</button>
+        <button id="exportVehiclesBtn" class="btn btn-primary">Export Vehicles</button>
+    </div>
+</div>
+
+<!-- Modals for adding/editing would go here -->
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize data
+            populateDriversTable();
+            populateVehiclesTable();
+
+            // Driver search
+            $('#searchDriverBtn').click(function() {
+                const searchTerm = $('#driverSearch').val().toLowerCase();
+                populateDriversTable(searchTerm);
+            });
+
+            // Export vehicles
+            $('#exportVehiclesBtn').click(function() {
+                const csv = DataService.exportVehicles();
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'vehicles.csv';
+                link.click();
+            });
+
+            // Add driver button
+            $('#addDriverBtn').click(function() {
+                // Show modal for adding driver
+                // Implementation would go here
+            });
+
+            // Add vehicle button (similar)
+        });
+
+        function populateDriversTable(searchTerm = '') {
+            const drivers = DataService.getDrivers();
+            const $tbody = $('#driversTable tbody');
+            $tbody.empty();
+
+            drivers
+                .filter(driver =>
+                    `${driver.driverFirstName} ${driver.driverLastName}`.toLowerCase().includes(searchTerm) ||
+                    driver.driverServiceType.toLowerCase().includes(searchTerm)
+                )
+                .forEach(driver => {
+                    const row = `
+                        <tr>
+                            <td>${driver.driverFirstName} ${driver.driverLastName}</td>
+                            <td>${driver.driverPhoneNumber}</td>
+                            <td>${driver.driverServiceType}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning edit-driver" data-id="${driver.driverID}">Edit</button>
+                                <button class="btn btn-sm btn-danger delete-driver" data-id="${driver.driverID}">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                    $tbody.append(row);
+                });
+        }
+
+        function populateVehiclesTable() {
+            const vehicles = DataService.getVehicles();
+            const $tbody = $('#vehiclesTable tbody');
+            $tbody.empty();
+
+            vehicles.forEach(vehicle => {
+                const row = `
+                    <tr>
+                        <td>${vehicle.vehicleType}</td>
+                        <td>${vehicle.vehicleRegistration}</td>
+                        <td>${vehicle.vehicleServiceType}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning edit-vehicle" data-id="${vehicle.vehicleID}">Edit</button>
+                            <button class="btn btn-sm btn-danger delete-vehicle" data-id="${vehicle.vehicleID}">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                $tbody.append(row);
+            });
+        }
+    </script>
+}

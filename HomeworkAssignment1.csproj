@@ -124,6 +124,7 @@
     </Compile>
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Driver.cs" />
+    <Compile Include="Models\Manage.cs" />
     <Compile Include="Models\Services.cs" />
     <Compile Include="Models\Vehicle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -179,10 +180,15 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Booking\HomePage.cshtml" />
+    <Content Include="Views\Booking\SelectService.cshtml" />
+    <Content Include="Views\Booking\BookingForm.cshtml" />
+    <Content Include="Views\Booking\ConfirmBooking.cshtml" />
+    <Content Include="Views\Booking\RideHistory.cshtml" />
+    <Content Include="Views\Booking\ManagePage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Booking\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

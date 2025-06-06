@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Ride History";
+}
+
+<h2>Ride History</h2>
+
+<div id="historyContainer">
+    <!-- History items populated by JavaScript -->
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            const bookings = DataService.getBookings();
+            const $container = $('#historyContainer');
+
+            if (bookings.length === 0) {
+                $container.html('<p>No bookings found</p>');
+                return;
+            }
+
+            bookings.forEach(booking => {
+                const driver = DataService.getDriver(booking.driverID);
+                const vehicle = DataService.getVehicle(booking.vehicleID);
+                const date = new Date(booking.bookingDate);
+
+                const bookingHtml = `
+                    <div class="card mb-3 ${booking.isEmergency ? 'border-danger' : ''}">
+                        <div class="card-body">
+                            <h5>${date.toLocaleDateString()} ${booking.isEmergency ? ' - S.O.S' : ''}</h5>
+                            <p><strong>Booking ID:</strong> ${booking.bookingID}</p>
+                            <p><strong>Driver:</strong> ${driver.driverFirstName} ${driver.driverLastName}</p>
+                            <p><strong>Ambulance:</strong> ${vehicle.vehicleType}</p>
+                            <p><strong>Pick-Up:</strong> ${booking.bookingPickupAddress}</p>
+                            <button class="btn btn-info view-details" data-id="${booking.bookingID}">View Details</button>
+                        </div>
+                    </div>
+                `;
+
+                $container.append(bookingHtml);
+            });
+
+            // Handle view details
+            $container.on('click', '.view-details', function() {
+                const bookingId = $(this).data('id');
+                const booking = DataService.getBookingById(bookingId);
+                localStorage.setItem('currentBooking', JSON.stringify(booking));
+                window.location.href = '@Url.Action("ConfirmedBooking", "Booking")';
+            });
+        });
+    </script>
+}

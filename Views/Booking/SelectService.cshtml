@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Select Service";
+}
+
+<h2>Select a service...</h2>
+<p>Lorem ipsum dolor sit amet consectetur adipiscing elit semper dalar elementum tempus hac tellus libero accumsan.</p>
+
+<div class="row">
+    @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@service</h5>
+                    <p class="card-text">Description of @service.</p>
+                    <a href="@Url.Action("BookingForm", "Booking", new { serviceType = service })" class="btn btn-primary">Select</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
