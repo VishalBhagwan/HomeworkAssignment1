@@ -7,5 +7,11 @@ namespace HomeworkAssignment1.Models
 {
     public class Driver
     {
+        public string driverID {  get; set; } = Guid.NewGuid().ToString();
+        public string driverImage { get; set; }
+        public string driverFirstName { get; set; }
+        public string driverLastName { get; set; }
+        public string driverPhoneNumber { get; set; }
+        public string driverServiceType { get; set; }
     }
 }
