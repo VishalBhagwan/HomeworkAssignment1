@@ -45,7 +45,7 @@
                 const bookingId = $(this).data('id');
                 const booking = DataService.getBookingById(bookingId);
                 localStorage.setItem('currentBooking', JSON.stringify(booking));
-                window.location.href = '@Url.Action("ConfirmedBooking", "Booking")';
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
             });
         });
     </script>
