@@ -13,39 +13,41 @@
         $(document).ready(function () {
             const booking = JSON.parse(localStorage.getItem('currentBooking'));
             if (booking) {
-                const driver = DataService.getDriver(booking.driverID);
-                const vehicle = DataService.getVehicle(booking.vehicleID);
+                const driver = booking.driverDetails || {};
+                const vehicle = booking.vehicleDetails || {};
 
                 const html = `
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Booking Details</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Booking ID:</strong> ${booking.bookingID}</p>
-                                    <p><strong>Date Booked:</strong> ${new Date(booking.bookingDate).toLocaleDateString()}</p>
-                                    <p><strong>Pick-Up Time:</strong> ${booking.bookingPickUp}</p>
-                                    <p><strong>Pick-Up Address:</strong> ${booking.bookingPickupAddress}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5>Driver Details</h5>
-                                    <img src="/Content/images/${driver.driverImage}" class="img-thumbnail" width="100" />
-                                    <p>${driver.driverFirstName} ${driver.driverLastName}</p>
-                                    <p>${driver.driverPhoneNumber}</p>
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Booking Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Booking ID:</strong> ${booking.bookingID}</p>
+                                        <p><strong>Date Booked:</strong> ${new Date(booking.bookingDate).toLocaleDateString()}</p>
+                                        <p><strong>Pick-Up Time:</strong> ${booking.bookingPickUp}</p>
+                                        <p><strong>Pick-Up Address:</strong> ${booking.bookingPickupAddress}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Driver Details</h5>
+                                        <img src="/Content/images/${driver.driverImage || 'default-driver.png'}" class="img-thumbnail" width="100" />
+                                        <p>${driver.driverFirstName} ${driver.driverLastName}</p>
+                                        <p>${driver.driverPhoneNumber}</p>
 
-                                    <h5 class="mt-3">Ambulance Details</h5>
-                                    <img src="/Content/images/${vehicle.vehicleImage}" class="img-thumbnail" width="100" />
-                                    <p>${vehicle.vehicleType}</p>
-                                    <p>${vehicle.vehicleRegistration}</p>
+                                        <h5 class="mt-3">Ambulance Details</h5>
+                                        <img src="/Content/images/${vehicle.vehicleImage || 'default-vehicle.png'}" class="img-thumbnail" width="100" />
+                                        <p>${vehicle.vehicleType}</p>
+                                        <p>${vehicle.vehicleRegistration}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
                 $('#bookingDetails').html(html);
+            } else {
+                $('#bookingDetails').html('<p>No booking information found.</p>');
             }
         });
     </script>

@@ -1,6 +1,10 @@
-﻿@{
+﻿@model HomeworkAssignment1.Models.DriverVehicleModel
+
+@{
     ViewBag.Title = "Booking Form";
     var serviceType = ViewBag.ServiceType as string;
+    var vehiclesJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Vehicles);
+    var driversJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Drivers);
 }
 
 <h2>@serviceType</h2>
@@ -67,19 +71,34 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            const serviceType = $('#serviceType').val();
+            const vehicles = @Html.Raw(vehiclesJson); // Pass vehicles data to JavaScript
+            const drivers = @Html.Raw(driversJson); // Pass drivers data to JavaScript
 
-            // Populate vehicles and drivers
-            populateVehicles(serviceType);
-            populateDrivers(serviceType);
+            // Populate vehicles
+            const $vehicleSelect = $('#vehicle');
+            vehicles.forEach(vehicle => {
+                $vehicleSelect.append($('<option>', {
+                    value: vehicle.vehicleID,
+                    text: vehicle.vehicleType
+                }));
+            });
+
+            // Populate drivers
+            const $driverSelect = $('#driver');
+            drivers.forEach(driver => {
+                $driverSelect.append($('<option>', {
+                    value: driver.driverID,
+                    text: `${driver.driverFirstName} ${driver.driverLastName}`
+                }));
+            });
 
             // Form submission
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
                 const booking = {
-                    serviceType: serviceType,
-                    bookingID: DataService.generateGUID(),
+                    serviceType: $('#serviceType').val(),
+                    bookingID: generateGUID(), // Assuming you have a function to generate a GUID
                     bookingFullName: $('#fullName').val(),
                     bookingPhoneNumber: $('#phone').val(),
                     bookingPickUp: $('#pickUpTime').val(),
@@ -91,37 +110,16 @@
                     isEmergency: false
                 };
 
-                // Save booking
-                DataService.addBooking(booking);
-
                 // Store for confirmation view
                 localStorage.setItem('currentBooking', JSON.stringify(booking));
-                window.location.href = '@Url.Action("ConfirmedBooking", "Booking")';
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
             });
 
-            function populateVehicles(serviceType) {
-                const vehicles = DataService.getVehiclesByService(serviceType);
-                const $select = $('#vehicle');
-                $select.empty().append('<option value="">Select Vehicle</option>');
-
-                vehicles.forEach(vehicle => {
-                    $select.append($('<option>', {
-                        value: vehicle.vehicleID,
-                        text: vehicle.vehicleType
-                    }));
-                });
-            }
-
-            function populateDrivers(serviceType) {
-                const drivers = DataService.getDriversByService(serviceType);
-                const $select = $('#driver');
-                $select.empty().append('<option value="">Select Driver</option>');
-
-                drivers.forEach(driver => {
-                    $select.append($('<option>', {
-                        value: driver.driverID,
-                        text: `${driver.driverFirstName} ${driver.driverLastName}`
-                    }));
+            // Function to generate a GUID (if you don't have one)
+            function generateGUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
                 });
             }
         });

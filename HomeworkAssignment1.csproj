@@ -124,7 +124,9 @@
     </Compile>
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Driver.cs" />
+    <Compile Include="Models\DriverVehicleModel.cs" />
     <Compile Include="Models\Manage.cs" />
+    <Compile Include="Models\Repository.cs" />
     <Compile Include="Models\Services.cs" />
     <Compile Include="Models\Vehicle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

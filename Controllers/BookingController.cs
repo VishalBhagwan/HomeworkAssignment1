@@ -23,16 +23,23 @@ namespace HomeworkAssignment1.Controllers
 
         public ActionResult BookingForm(string serviceType)
         {
+            var viewModel = new DriverVehicleModel
+            {
+                Drivers = Repository.GetDrivers().Where(d => d.driverServiceType == serviceType).ToList(),
+                Vehicles = Repository.GetVehicles().Where(v => v.vehicleServiceType == serviceType).ToList(),
+            };
+
+
             if (!Services.serviceTypes.Contains(serviceType))
             {
                 return RedirectToAction("SelectService");
             }
 
-            ViewBag.Services = serviceType;
-            return View();
+            ViewBag.ServiceType = serviceType;
+            return View(viewModel);
         }
 
-        public ActionResult ConfirmedBooking() 
+        public ActionResult ConfirmBooking() 
         {
             return View();
         }
