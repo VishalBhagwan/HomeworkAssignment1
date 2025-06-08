@@ -19,5 +19,9 @@ namespace HomeworkAssignment1.Models
         public string vehicleID { get; set; }
         public string driverID { get; set; }
         public string bookingPickupAddress { get; set; }
+        public bool isEmergency { get; set; } = false;
+
+        public Driver driver { get; set; }
+        public Vehicle vehicle { get; set; }
     }
 }

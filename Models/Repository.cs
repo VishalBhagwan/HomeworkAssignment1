@@ -24,6 +24,20 @@ namespace HomeworkAssignment1.Models
 
         };
 
+        public static List<Booking> bookings = new List<Booking>();
+        public static List<Booking> GetBookings() 
+        { 
+            return bookings; 
+        }
+        public static void AddBooking(Booking booking)
+        {
+            bookings.Add(booking);
+        }
+        public static Booking GetBookingByID(string bID)
+        {
+            return bookings.FirstOrDefault(b => b.bookingID == bID);
+        }
+
         //Driver and Vehicle CRUD
         //Driver
         public static List<Driver> GetDrivers() => drivers;

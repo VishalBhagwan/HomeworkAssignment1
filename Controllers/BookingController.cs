@@ -18,7 +18,7 @@ namespace HomeworkAssignment1.Controllers
 
         public ActionResult SelectService() 
         {
-            ViewBag.Service = Services.serviceTypes;
+            //ViewBag.Service = Services.serviceTypes;
             return View();
         }
 
@@ -41,21 +41,89 @@ namespace HomeworkAssignment1.Controllers
         }
 
         [HttpPost]
-        public ActionResult CreateBooking(Booking booking)
+        public ActionResult CreateBooking()
         {
+            var booking = new Booking
+            {
+                serviceType = Request.Form["serviceType"],
+                bookingFullName = Request.Form["bookingFullName"],
+                // ... other properties ...
+                driver = Repository.GetDriver(Request.Form["driverID"]),
+                vehicle = Repository.GetVehicle(Request.Form["vehicleID"])
+            };
+            Repository.AddBooking(booking); // Add this line
+                                            // Add the booking to local storage
+            TempData["Booking"] = booking;
+            return RedirectToAction("ConfirmBooking");
+        }
+
+        public ActionResult ConfirmBooking()
+        {
+            return View();
+        }
+
+        public ActionResult ViewBooking(string id)
+        {
+            var booking = Repository.GetBookingByID(id);
+            if (booking == null)
+            {
+                return HttpNotFound();
+            }
 
             TempData["Booking"] = booking;
             return RedirectToAction("ConfirmBooking");
         }
 
-        public ActionResult ConfirmBooking() 
+        public ActionResult EmergencyBooking()
         {
-            return View();
+            // Get all service types
+            var serviceTypes = Services.serviceTypes;
+
+            // Select a random service type
+            var random = new Random();
+            var randomService = serviceTypes[random.Next(serviceTypes.Count)];
+
+            // Get available drivers and vehicles for this service
+            var availableDrivers = Repository.GetDrivers()
+                .Where(d => d.driverServiceType == randomService)
+                .ToList();
+
+            var availableVehicles = Repository.GetVehicles()
+                .Where(v => v.vehicleServiceType == randomService)
+                .ToList();
+
+            if (!availableDrivers.Any() || !availableVehicles.Any())
+            {
+                // Fallback if no drivers/vehicles available
+                return RedirectToAction("SelectService");
+            }
+
+            // Create emergency booking
+            var booking = new Booking
+            {
+                serviceType = randomService,
+                bookingFullName = "EMERGENCY PATIENT",
+                bookingPhoneNumber = "000-000-0000",
+                bookingPickUp = DateTime.Now.AddMinutes(30),
+                bookingReason = "Emergency transport",
+                driver = availableDrivers[random.Next(availableDrivers.Count)],
+                vehicle = availableVehicles[random.Next(availableVehicles.Count)],
+                bookingPickupAddress = "Emergency Location",
+                isEmergency = true,
+                bookingDate = DateTime.Now
+            };
+
+            Repository.AddBooking(booking);
+            TempData["Booking"] = booking;
+
+            return RedirectToAction("ConfirmBooking");
         }
 
         public ActionResult RideHistory()
         {
-            return View();
+            var bookings = Repository.GetBookings().OrderByDescending(b => b.bookingDate).ToList();
+
+            return View(bookings);
         }
 
         //Manage
