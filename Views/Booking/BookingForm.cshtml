@@ -93,40 +93,62 @@
             });
 
             // Form submission
-            // Form submission
-// Form submission
-$('#bookingForm').submit(function(e) {
-    e.preventDefault();
+            $('#bookingForm').submit(function(e) {
+                e.preventDefault();
 
-    const booking = {
-        serviceType: $('#serviceType').val(),
-        bookingID: generateGUID(), // Assuming you have a function to generate a GUID
-        bookingFullName: $('#fullName').val(),
-        bookingPhoneNumber: $('#phone').val(),
-        bookingPickUp: $('#pickUpTime').val(),
-        bookingReason: $('#reason').val(),
-        vehicleID: $('#vehicle').val(),
-        driverID: $('#driver').val(),
-        bookingPickupAddress: $('#pickUpAddress').val(),
-        bookingDate: new Date().toISOString(),
-        isEmergency: false
-    };
+                // Get the selected driver's details
+                const selectedDriverId = $('#driver').val();
+                const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
 
-    // Store booking in local storage
-    let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
-    bookings.push(booking);
-    localStorage.setItem('bookings', JSON.stringify(bookings));
+                // Get the selected vehicle's details
+                const selectedVehicleId = $('#vehicle').val();
+                const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
 
-    // Store for confirmation view
-    localStorage.setItem('currentBooking', JSON.stringify(booking));
-    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
-});
+                const booking = {
+                    serviceType: $('#serviceType').val(),
+                    bookingID: generateGUID(),
+                    bookingFullName: $('#fullName').val(),
+                    bookingPhoneNumber: $('#phone').val(),
+                    bookingPickUp: $('#pickUpTime').val(),
+                    bookingReason: $('#reason').val(),
+                    vehicleID: selectedVehicleId,
+                    driverID: selectedDriverId,
+                    bookingPickupAddress: $('#pickUpAddress').val(),
+                    bookingDate: new Date().toISOString(),
+                    isEmergency: false,
+                    // Include complete driver and vehicle details
+                    driverDetails: {
+                        driverID: selectedDriverId,
+                        driverFirstName: selectedDriver.driverFirstName,
+                        driverLastName: selectedDriver.driverLastName,
+                        driverPhoneNumber: selectedDriver.driverPhoneNumber,
+                        driverServiceType: selectedDriver.driverServiceType
+                    },
+                    vehicleDetails: {
+                        vehicleID: selectedVehicleId,
+                        vehicleType: selectedVehicle.vehicleType,
+                        vehicleRegistration: selectedVehicle.vehicleRegistration,
+                        vehicleServiceType: selectedVehicle.vehicleServiceType
+                    }
+                };
+
+                // Store in local storage
+                localStorage.setItem('currentBooking', JSON.stringify(booking));
+
+                // Also add to bookings array in local storage
+                let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+                bookings.push(booking);
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+
+                // Redirect to confirmation page
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
+            });
 
 
 
             // Function to generate a GUID (if you don't have one)
             function generateGUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                     const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
