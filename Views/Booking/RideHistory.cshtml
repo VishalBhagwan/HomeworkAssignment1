@@ -11,28 +11,32 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Load bookings from localStorage
-            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
-            const $historyContainer = $('#rideHistory');
-
-            if (bookings.length === 0) {
-                $historyContainer.html('<div class="alert alert-info">No bookings found</div>');
+            // Get list of booking keys
+            const bookingKeys = localStorage.getItem('bookingKeys');
+            if (!bookingKeys) {
+                $('#rideHistory').html('<div class="alert alert-info">No bookings found</div>');
                 return;
             }
 
             // Generate HTML for each booking
             let html = '';
-            bookings.forEach(booking => {
+            const keys = bookingKeys.split(',');
+
+            keys.forEach(key => {
+                if (!key) return;
+
+                const date = new Date(localStorage.getItem(key + '_date'));
+                const isEmergency = localStorage.getItem(key + '_isEmergency') === 'true';
+
                 html += `
-                    <div class="card mb-3 ${booking.isEmergency ? 'border-danger' : ''}">
+                    <div class="card mb-3 ${isEmergency ? 'border-danger' : ''}">
                         <div class="card-body">
-                            <h5>${new Date(booking.bookingDate).toLocaleDateString()} ${booking.isEmergency ? ' - S.O.S' : ''}</h5>
-                            <p><strong>Booking ID:</strong> ${booking.bookingID}</p>
-                            <p><strong>Driver:</strong> ${booking.driverDetails?.driverFirstName} ${booking.driverDetails?.driverLastName}</p>
-                            <p><strong>Ambulance:</strong> ${booking.vehicleDetails?.vehicleType}</p>
-                            <p><strong>Pick-Up:</strong> ${booking.bookingPickupAddress}</p>
-                            <button class="btn btn-info view-booking"
-                                    data-booking='${JSON.stringify(booking).replace(/'/g, "\\'")}'>
+                            <h5>${date.toLocaleDateString()} ${isEmergency ? ' - S.O.S' : ''}</h5>
+                            <p><strong>Booking ID:</strong> ${localStorage.getItem(key + '_id')}</p>
+                            <p><strong>Driver:</strong> ${localStorage.getItem(key + '_driverFirstName')} ${localStorage.getItem(key + '_driverLastName')}</p>
+                            <p><strong>Ambulance:</strong> ${localStorage.getItem(key + '_vehicleType')}</p>
+                            <p><strong>Pick-Up:</strong> ${localStorage.getItem(key + '_address')}</p>
+                            <button class="btn btn-info view-booking" data-key="${key}">
                                 View Details
                             </button>
                         </div>
@@ -40,17 +44,12 @@
                 `;
             });
 
-            $historyContainer.html(html);
+            $('#rideHistory').html(html);
 
             // Handle View Details button click
             $(document).on('click', '.view-booking', function() {
-                // Get the complete booking data from the button's data attribute
-                const bookingData = $(this).data('booking');
-
-                // Store the booking in localStorage as currentBooking
-                localStorage.setItem('currentBooking', JSON.stringify(bookingData));
-
-                // Redirect to the confirmation page
+                const bookingKey = $(this).data('key');
+                localStorage.setItem('currentBookingKey', bookingKey);
                 window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
             });
         });

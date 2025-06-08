@@ -96,53 +96,51 @@
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
-                // Get the selected driver's details
-                const selectedDriverId = $('#driver').val();
-                const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
+    // Get selected driver and vehicle details
+    const selectedDriverId = $('#driver').val();
+    const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
+    const selectedVehicleId = $('#vehicle').val();
+    const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
 
-                // Get the selected vehicle's details
-                const selectedVehicleId = $('#vehicle').val();
-                const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
+    // Create a unique key for this booking
+    const bookingKey = 'booking_' + Date.now();
 
-                const booking = {
-                    serviceType: $('#serviceType').val(),
-                    bookingID: generateGUID(),
-                    bookingFullName: $('#fullName').val(),
-                    bookingPhoneNumber: $('#phone').val(),
-                    bookingPickUp: $('#pickUpTime').val(),
-                    bookingReason: $('#reason').val(),
-                    vehicleID: selectedVehicleId,
-                    driverID: selectedDriverId,
-                    bookingPickupAddress: $('#pickUpAddress').val(),
-                    bookingDate: new Date().toISOString(),
-                    isEmergency: false,
-                    // Include complete driver and vehicle details
-                    driverDetails: {
-                        driverID: selectedDriverId,
-                        driverFirstName: selectedDriver.driverFirstName,
-                        driverLastName: selectedDriver.driverLastName,
-                        driverPhoneNumber: selectedDriver.driverPhoneNumber,
-                        driverServiceType: selectedDriver.driverServiceType
-                    },
-                    vehicleDetails: {
-                        vehicleID: selectedVehicleId,
-                        vehicleType: selectedVehicle.vehicleType,
-                        vehicleRegistration: selectedVehicle.vehicleRegistration,
-                        vehicleServiceType: selectedVehicle.vehicleServiceType
-                    }
-                };
+    // Store each piece of data separately in localStorage
+    localStorage.setItem(bookingKey + '_serviceType', $('#serviceType').val());
+    localStorage.setItem(bookingKey + '_id', generateGUID());
+    localStorage.setItem(bookingKey + '_fullName', $('#fullName').val());
+    localStorage.setItem(bookingKey + '_phone', $('#phone').val());
+    localStorage.setItem(bookingKey + '_pickUpTime', $('#pickUpTime').val());
+    localStorage.setItem(bookingKey + '_reason', $('#reason').val());
+    localStorage.setItem(bookingKey + '_address', $('#pickUpAddress').val());
+    localStorage.setItem(bookingKey + '_date', new Date().toISOString());
+    localStorage.setItem(bookingKey + '_isEmergency', 'false');
+    localStorage.setItem(bookingKey + '_driverId', selectedDriverId);
+    localStorage.setItem(bookingKey + '_vehicleId', selectedVehicleId);
 
-                // Store in local storage
-                localStorage.setItem('currentBooking', JSON.stringify(booking));
+    // Store driver details
+    localStorage.setItem(bookingKey + '_driverFirstName', selectedDriver.driverFirstName);
+    localStorage.setItem(bookingKey + '_driverLastName', selectedDriver.driverLastName);
+    localStorage.setItem(bookingKey + '_driverPhone', selectedDriver.driverPhoneNumber);
+    localStorage.setItem(bookingKey + '_driverService', selectedDriver.driverServiceType);
 
-                // Also add to bookings array in local storage
-                let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
-                bookings.push(booking);
-                localStorage.setItem('bookings', JSON.stringify(bookings));
+    // Store vehicle details
+    localStorage.setItem(bookingKey + '_vehicleType', selectedVehicle.vehicleType);
+    localStorage.setItem(bookingKey + '_vehicleReg', selectedVehicle.vehicleRegistration);
+    localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.vehicleServiceType);
 
-                // Redirect to confirmation page
-                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
-            });
+    // Add to bookings list
+    let bookings = localStorage.getItem('bookingKeys') || '';
+    if (bookings) bookings += ',';
+    bookings += bookingKey;
+    localStorage.setItem('bookingKeys', bookings);
+
+    // Set as current booking
+    localStorage.setItem('currentBookingKey', bookingKey);
+
+    // Redirect to confirmation
+    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
+});
 
 
 
