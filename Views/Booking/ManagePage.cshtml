@@ -4,6 +4,41 @@
     ViewBag.Title = "Manage Drivers and Vehicles";
 }
 
+@if (TempData["DriverUpdated"] != null && (bool)TempData["DriverUpdated"])
+{
+    <script>
+        // Update localStorage with the edited driver
+        var driverData = '@TempData["UpdatedDriver"]'.split('|');
+        var driverId = driverData[0];
+        var driverDetails = driverData.slice(1).join('|');
+
+        localStorage.setItem('driver_' + driverId, driverDetails);
+
+        // Show success message
+        alert('Driver updated successfully!');
+
+        // Refresh the page to show updates
+        window.location.href = '@Url.Action("ManagePage")';
+    </script>
+}
+
+@if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
+{
+    <script>
+        // Add the new driver to localStorage
+        var driverData = '@TempData["NewDriver"]'.split('|');
+        var driverId = driverData[0];
+        var driverDetails = driverData.slice(1).join('|');
+
+        localStorage.setItem('driver_' + driverId, driverDetails);
+
+        // Show success message
+        alert('Driver added successfully!');
+
+        // Refresh the page to show updates
+        window.location.href = '@Url.Action("ManagePage")';
+    </script>
+}
 
 
 <h2>Driver and Vehicle Management</h2>
@@ -67,29 +102,21 @@
         });
 
         function loadDrivers() {
-    $('#driversList').empty();
+            $('#driversList').empty();
 
-    // First load from Repository
-    @foreach (var driver in HomeworkAssignment1.Models.Repository.GetDrivers())
-    {
-        <text>
-        addDriverRow('@driver.driverID', '@driver.driverFirstName', '@driver.driverLastName',
-                    '@driver.driverPhoneNumber', '@driver.driverServiceType');
-        </text>
-    }
-
-    // Then check localStorage for additional drivers
-    for (var i = 0; i < localStorage.length; i++) {
-        var key = localStorage.key(i);
-        if (key.startsWith('driver_') && !key.includes('|')) {
-            var driverId = key.replace('driver_', '');
-            var driverData = localStorage.getItem(key).split('|');
-            if (driverData.length === 4) {
-                addDriverRow(driverId, driverData[0], driverData[1], driverData[2], driverData[3]);
+   
+            // Then check localStorage for additional drivers
+            for (var i = 0; i < localStorage.length; i++) {
+                var key = localStorage.key(i);
+                if (key.startsWith('driver_') && !key.includes('|')) {
+                    var driverId = key.replace('driver_', '');
+                    var driverData = localStorage.getItem(key).split('|');
+                    if (driverData.length === 4) {
+                        addDriverRow(driverId, driverData[0], driverData[1], driverData[2], driverData[3]);
+                    }
+                }
             }
         }
-    }
-}
 
         function addDriverRow(id, firstName, lastName, phone, service) {
             // Only add if all fields have values

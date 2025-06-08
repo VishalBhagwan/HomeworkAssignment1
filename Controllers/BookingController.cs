@@ -142,6 +142,7 @@ namespace HomeworkAssignment1.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddDriver(Driver driver)
         {
             if (ModelState.IsValid)
@@ -161,31 +162,36 @@ namespace HomeworkAssignment1.Controllers
         }
 
         // Edit Driver
+        // In your BookingController.cs
+
         [HttpGet]
         public ActionResult EditDriver(string id)
         {
             // Get driver from repository
-            var driver = Repository.GetDrivers().FirstOrDefault(d => d.driverID == id);
-
+            var driver = Repository.GetDriver(id);
             if (driver == null)
             {
                 return HttpNotFound();
             }
-
-            return View(driver); // Make sure to pass the driver to the view
+            return View(driver);
         }
 
         [HttpPost]
-        public ActionResult EditDriver(Driver driver)
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveDriver(Driver driver)
         {
             if (ModelState.IsValid)
             {
+                // Update the repository
                 Repository.UpdateDriver(driver);
+
+                // Store in TempData for client-side storage
+                TempData["DriverUpdated"] = true;
+                TempData["UpdatedDriver"] = $"{driver.driverID}|{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+
                 return RedirectToAction("ManagePage");
             }
-
-            // If we got this far, something failed, redisplay form
-            return View(driver);
+            return View("EditDriver", driver);
         }
 
         // Delete Driver

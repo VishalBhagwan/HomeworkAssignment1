@@ -11,6 +11,7 @@
 
     @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {
+        @Html.AntiForgeryToken()
 
         <div class="form-group row">
             @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })

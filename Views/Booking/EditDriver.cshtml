@@ -2,14 +2,14 @@
 
 @{
     ViewBag.Title = "Edit Driver";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Ensure you have a layout
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-4">
     <h2>Edit Driver</h2>
     <hr />
 
-    @using (Html.BeginForm("EditDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    @using (Html.BeginForm("SaveDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(model => model.driverID)
@@ -41,7 +41,7 @@
         <div class="form-group row">
             @Html.LabelFor(model => model.driverServiceType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.driverServiceType, 
+                @Html.DropDownListFor(model => model.driverServiceType,
                     new SelectList(HomeworkAssignment1.Models.Services.serviceTypes),
                     "Select Service Type",
                     new { @class = "form-control" })
@@ -64,10 +64,22 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
     <script>
-        $(document).ready(function() {
-            // Add any custom client-side validation or behavior here
+        $(document).ready(function () {
+            // Phone number masking
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
+
+            // Store the original driver data for comparison
+            var originalDriverData = [
+                $('#driverFirstName').val(),
+                $('#driverLastName').val(),
+                $('#driverPhoneNumber').val(),
+                $('#driverServiceType').val()
+            ].join('|');
+
+            // Store in localStorage to detect changes
+            localStorage.setItem('originalDriverData', originalDriverData);
         });
     </script>
 }
