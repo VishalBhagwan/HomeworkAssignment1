@@ -188,6 +188,8 @@
     <Content Include="Views\Booking\ConfirmBooking.cshtml" />
     <Content Include="Views\Booking\RideHistory.cshtml" />
     <Content Include="Views\Booking\ManagePage.cshtml" />
+    <Content Include="Views\Booking\AddDriver.cshtml" />
+    <Content Include="Views\Booking\EditDriver.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

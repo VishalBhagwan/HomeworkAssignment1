@@ -4,17 +4,20 @@
     ViewBag.Title = "Manage Drivers and Vehicles";
 }
 
+
+
 <h2>Driver and Vehicle Management</h2>
 
 <div class="row">
     <div class="col-md-6">
         <h3>Drivers</h3>
         <div class="input-group mb-3">
-            <input type="text" id="driverSearch" class="form-control" placeholder="Search by name" value="@Model.searchDriverName">
+            <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
             <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="searchDriverBtn">Search</button>
+                <button class="btn btn-outline-secondary" id="searchDriversBtn">Search</button>
             </div>
         </div>
+
         <table class="table" id="driversTable">
             <thead>
                 <tr>
@@ -24,210 +27,175 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var driver in Model.Drivers)
-                {
-                    <tr>
-                        <td>@driver.driverFirstName @driver.driverLastName</td>
-                        <td>@driver.driverPhoneNumber</td>
-                        <td>@driver.driverServiceType</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning edit-driver" data-id="@driver.driverID">Edit</button>
-                            <button class="btn btn-sm btn-danger delete-driver" data-id="@driver.driverID">Delete</button>
-                        </td>
-                    </tr>
-                }
+            <tbody id="driversList">
+                <!-- Will be populated by jQuery -->
             </tbody>
         </table>
-        <button id="addDriverBtn" class="btn btn-success" data-toggle="modal" data-target="#addDriverModal">Add Driver</button>
-    </div>
 
-    <div class="col-md-6">
-        <h3>Vehicles</h3>
-        <div class="input-group mb-3">
-            <input type="text" id="vehicleSearch" class="form-control" placeholder="Search by type" value="@Model.searchServiceType">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="searchVehicleBtn">Search</button>
-            </div>
-        </div>
-        <table class="table" id="vehiclesTable">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Registration</th>
-                    <th>Service</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var vehicle in Model.Vehicles)
-                {
-                    <tr>
-                        <td>@vehicle.vehicleType</td>
-                        <td>@vehicle.vehicleRegistration</td>
-                        <td>@vehicle.vehicleServiceType</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning edit-vehicle" data-id="@vehicle.vehicleID">Edit</button>
-                            <button class="btn btn-sm btn-danger delete-vehicle" data-id="@vehicle.vehicleID">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <button id="addVehicleBtn" class="btn btn-success" data-toggle="modal" data-target="#addVehicleModal">Add Vehicle</button>
-    </div>
-</div>
-
-<!-- Add Driver Modal -->
-<div class="modal fade" id="addDriverModal" tabindex="-1" role="dialog" aria-labelledby="addDriverModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addDriverModalLabel">Add Driver</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="addDriverForm">
-                    <div class="form-group">
-                        <label for="driverFirstName">First Name</label>
-                        <input type="text" class="form-control" id="driverFirstName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="driverLastName">Last Name</label>
-                        <input type="text" class="form-control" id="driverLastName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="driverPhoneNumber">Phone</label>
-                        <input type="tel" class="form-control" id="driverPhoneNumber" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="driverServiceType">Service Type</label>
-                        <input type="text" class="form-control" id="driverServiceType" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveDriverBtn">Save Driver</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Vehicle Modal -->
-<div class="modal fade" id="addVehicleModal" tabindex="-1" role="dialog" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addVehicleModalLabel">Add Vehicle</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="addVehicleForm">
-                    <div class="form-group">
-                        <label for="vehicleType">Type</label>
-                        <input type="text" class="form-control" id="vehicleType" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="vehicleRegistration">Registration</label>
-                        <input type="text" class="form-control" id="vehicleRegistration" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="vehicleServiceType">Service Type</label>
-                        <input type="text" class="form-control" id="vehicleServiceType" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveVehicleBtn">Save Vehicle</button>
-            </div>
-        </div>
+        <a href="@Url.Action("AddDriver", "Booking")" class="btn btn-primary">Add Driver</a>
     </div>
 </div>
 
 @section scripts {
+    <!-- Add these if not already in your layout -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script>
         $(document).ready(function () {
-            // Initialize data
-            populateDriversTable();
-            populateVehiclesTable();
+            // Load initial data
+            loadDrivers();
 
-            // Driver search
-            $('#searchDriverBtn').click(function() {
-                const searchTerm = $('#driverSearch').val();
-                window.location.href = '@Url.Action("ManagePage", "Booking")?searchDriverName=' + searchTerm + '&searchServiceType=' + $('#vehicleSearch').val();
+            // Set up event handlers
+            $('#saveDriverBtn').click(saveDriver);
+            $('#searchDriversBtn').click(searchDrivers);
+
+
+
+            // Use event delegation for dynamically added buttons
+            $(document).on('click', '.edit-driver', function () {
+                var driverId = $(this).data('id');
+                editDriver(driverId);
             });
 
-            // Vehicle search
-            $('#searchVehicleBtn').click(function() {
-                const searchTerm = $('#vehicleSearch').val();
-                window.location.href = '@Url.Action("ManagePage", "Booking")?searchDriverName=' + $('#driverSearch').val() + '&searchServiceType=' + searchTerm;
+            $(document).on('click', '.delete-driver', function () {
+                var driverId = $(this).data('id');
+                deleteDriver(driverId);
             });
 
-            // Add driver button
-            $('#addDriverBtn').click(function() {
-                $('#addDriverForm')[0].reset(); // Reset the form
-            });
 
-            // Save driver button
-            $('#saveDriverBtn').click(function() {
-                const newDriver = {
-                    driverFirstName: $('#driverFirstName').val(),
-                    driverLastName: $('#driverLastName').val(),
-                    driverPhoneNumber: $('#driverPhoneNumber').val(),
-                    driverServiceType: $('#driverServiceType').val(),
-                };
-
-                $.post('@Url.Action("AddDriver", "Booking")', newDriver, function() {
-                    location.reload(); // Reload the page to see the new driver
-                });
-            });
-
-            // Save vehicle button
-            $('#saveVehicleBtn').click(function() {
-                const newVehicle = {
-                    vehicleType: $('#vehicleType').val(),
-                    vehicleRegistration: $('#vehicleRegistration').val(),
-                    vehicleServiceType: $('#vehicleServiceType').val(),
-                };
-
-                $.post('@Url.Action("AddVehicle", "Booking")', newVehicle, function() {
-                    location.reload(); // Reload the page to see the new vehicle
-                });
-            });
-
-            // Delete driver
-            $(document).on('click', '.delete-driver', function() {
-                const driverId = $(this).data('id');
-                if (confirm('Are you sure you want to delete this driver?')) {
-                    $.post('@Url.Action("DeleteDriver", "Booking")', { id: driverId }, function() {
-                        location.reload(); // Reload the page to see the updated list
-                    });
-                }
-            });
-
-            // Delete vehicle
-            $(document).on('click', '.delete-vehicle', function() {
-                const vehicleId = $(this).data('id');
-                if (confirm('Are you sure you want to delete this vehicle?')) {
-                    $.post('@Url.Action("DeleteVehicle", "Booking")', { id: vehicleId }, function() {
-                        location.reload(); // Reload the page to see the updated list
-                    });
-                }
-            });
         });
 
-        function populateDriversTable() {
-            // This function can be used to populate the drivers table if needed
+        function loadDrivers() {
+    $('#driversList').empty();
+
+    // First load from Repository
+    @foreach (var driver in HomeworkAssignment1.Models.Repository.GetDrivers())
+    {
+        <text>
+        addDriverRow('@driver.driverID', '@driver.driverFirstName', '@driver.driverLastName',
+                    '@driver.driverPhoneNumber', '@driver.driverServiceType');
+        </text>
+    }
+
+    // Then check localStorage for additional drivers
+    for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key.startsWith('driver_') && !key.includes('|')) {
+            var driverId = key.replace('driver_', '');
+            var driverData = localStorage.getItem(key).split('|');
+            if (driverData.length === 4) {
+                addDriverRow(driverId, driverData[0], driverData[1], driverData[2], driverData[3]);
+            }
+        }
+    }
+}
+
+        function addDriverRow(id, firstName, lastName, phone, service) {
+            // Only add if all fields have values
+            if (firstName && lastName && phone && service) {
+                $('#driversList').append(
+                    '<tr>' +
+                    '<td>' + firstName + ' ' + lastName + '</td>' +
+                    '<td>' + phone + '</td>' +
+                    '<td>' + service + '</td>' +
+                    '<td>' +
+                    '<a href="@Url.Action("EditDriver", "Booking")" class="btn btn-primary">Edit</a>' +
+                    '<button class="btn btn-sm btn-danger delete-driver" data-id="' + id + '">Delete</button>' +
+                    '</td>' +
+                    '</tr>'
+                );
+            }
         }
 
-        function populateVehiclesTable() {
-            // This function can be used to populate the vehicles table if needed
+        // Rest of your functions remain the same...
+        function saveDriver() {
+            var driverId = $('#driverID').val() || Date.now().toString();
+            var driverData = [
+                $('#driverFirstName').val(),
+                $('#driverLastName').val(),
+                $('#driverPhone').val(),
+                $('#driverService').val()
+            ].join('|');
+
+            if (driverData.split('|').every(field => field.trim() !== '')) {
+                // Save to localStorage
+                localStorage.setItem('driver_' + driverId, driverData);
+
+                // Update Repository
+                var driver = {
+                    driverID: driverId,
+                    driverFirstName: $('#driverFirstName').val(),
+                    driverLastName: $('#driverLastName').val(),
+                    driverPhoneNumber: $('#driverPhone').val(),
+                    driverServiceType: $('#driverService').val(),
+                    driverImage: ""
+                };
+
+                if ($('#driverID').val()) {
+                    Repository.UpdateDriver(driver);
+                } else {
+                    Repository.AddDriver(driver);
+                }
+
+                // Close the modal
+                $('#driverModal').modal('hide');
+
+                // Clear the form
+                $('#driverForm')[0].reset();
+
+                // Refresh the drivers list
+                loadDrivers();
+
+                // Show success message
+                alert('Driver saved successfully!');
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function editDriver(driverId) {
+            var driverData = localStorage.getItem('driver_' + driverId);
+
+            if (!driverData) {
+                var driver = Repository.GetDriver(driverId);
+                if (driver) {
+                    driverData = [
+                        driver.driverFirstName,
+                        driver.driverLastName,
+                        driver.driverPhoneNumber,
+                        driver.driverServiceType
+                    ].join('|');
+                }
+            }
+
+            if (driverData) {
+                var fields = driverData.split('|');
+                $('#driverID').val(driverId);
+                $('#driverFirstName').val(fields[0]);
+                $('#driverLastName').val(fields[1]);
+                $('#driverPhone').val(fields[2]);
+                $('#driverService').val(fields[3]);
+
+                $('#driverModalTitle').text('Edit Driver');
+                $('#driverModal').modal('show');
+            }
+        }
+
+        function deleteDriver(driverId) {
+            if (confirm('Are you sure you want to delete this driver?')) {
+                localStorage.removeItem('driver_' + driverId);
+                Repository.DeleteDriver(driverId);
+                loadDrivers();
+            }
+        }
+
+        function searchDrivers() {
+            var searchTerm = $('#driverSearch').val().toLowerCase();
+            $('#driversList tr').each(function () {
+                var driverName = $(this).find('td:first').text().toLowerCase();
+                $(this).toggle(driverName.includes(searchTerm));
+            });
         }
     </script>
 }

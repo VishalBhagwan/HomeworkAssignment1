@@ -21,13 +21,13 @@
             // Generate HTML for each booking
             let html = '';
             const keys = bookingKeys.split(',');
-
+            
             keys.forEach(key => {
                 if (!key) return;
-
+                
                 const date = new Date(localStorage.getItem(key + '_date'));
                 const isEmergency = localStorage.getItem(key + '_isEmergency') === 'true';
-
+                
                 html += `
                     <div class="card mb-3 ${isEmergency ? 'border-danger' : ''}">
                         <div class="card-body">

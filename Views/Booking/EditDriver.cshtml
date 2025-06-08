@@ -1,0 +1,73 @@
+﻿@model HomeworkAssignment1.Models.Driver
+
+@{
+    ViewBag.Title = "Edit Driver";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Ensure you have a layout
+}
+
+<div class="container mt-4">
+    <h2>Edit Driver</h2>
+    <hr />
+
+    @using (Html.BeginForm("EditDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.driverID)
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.driverFirstName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.driverFirstName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverLastName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.driverLastName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.driverLastName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverPhoneNumber, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.driverPhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.driverPhoneNumber, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverServiceType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.driverServiceType, 
+                    new SelectList(HomeworkAssignment1.Models.Services.serviceTypes),
+                    "Select Service Type",
+                    new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.driverServiceType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {
+            // Add any custom client-side validation or behavior here
+            $('#driverPhoneNumber').inputmask('(999) 999-9999');
+        });
+    </script>
+}

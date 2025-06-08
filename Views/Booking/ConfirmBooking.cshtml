@@ -43,27 +43,27 @@
         $(document).ready(function () {
             const bookingKey = localStorage.getItem('currentBookingKey');
             if (bookingKey) {
-                // Retrieve all booking data from localStorage
+                //Retrieve all booking data from local storage
                 $('#bookingId').text(localStorage.getItem(bookingKey + '_id'));
                 $('#serviceType').text(localStorage.getItem(bookingKey + '_serviceType'));
                 $('#bookingDate').text(new Date(localStorage.getItem(bookingKey + '_date')).toLocaleString());
                 $('#pickUpTime').text(localStorage.getItem(bookingKey + '_pickUpTime'));
                 $('#reason').text(localStorage.getItem(bookingKey + '_reason'));
                 $('#address').text(localStorage.getItem(bookingKey + '_address'));
-
-                // Driver details
+                
+                //Driver details
                 $('#driverName').text(
-                    localStorage.getItem(bookingKey + '_driverFirstName') + ' ' +
+                    localStorage.getItem(bookingKey + '_driverFirstName') + ' ' + 
                     localStorage.getItem(bookingKey + '_driverLastName')
                 );
                 $('#driverPhone').text(localStorage.getItem(bookingKey + '_driverPhone'));
                 $('#driverService').text(localStorage.getItem(bookingKey + '_driverService'));
-
-                // Vehicle details
+                
+                //Vehicle details
                 $('#vehicleType').text(localStorage.getItem(bookingKey + '_vehicleType'));
                 $('#vehicleReg').text(localStorage.getItem(bookingKey + '_vehicleReg'));
                 $('#vehicleService').text(localStorage.getItem(bookingKey + '_vehicleService'));
-            } else {
+            }else{
                 $('#bookingDetails').html(`
                     <div class="alert alert-warning">
                         No booking information found.

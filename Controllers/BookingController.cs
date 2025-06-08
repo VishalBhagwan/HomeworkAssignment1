@@ -74,49 +74,30 @@ namespace HomeworkAssignment1.Controllers
             return RedirectToAction("ConfirmBooking");
         }
 
-        public ActionResult EmergencyBooking()
+        [HttpPost]
+        public ActionResult EmergencyBooking(string serviceType, string driverId, string vehicleId)
         {
-            // Get all service types
-            var serviceTypes = Services.serviceTypes;
+            var driver = Repository.GetDriver(driverId);
+            var vehicle = Repository.GetVehicle(vehicleId);
 
-            // Select a random service type
-            var random = new Random();
-            var randomService = serviceTypes[random.Next(serviceTypes.Count)];
-
-            // Get available drivers and vehicles for this service
-            var availableDrivers = Repository.GetDrivers()
-                .Where(d => d.driverServiceType == randomService)
-                .ToList();
-
-            var availableVehicles = Repository.GetVehicles()
-                .Where(v => v.vehicleServiceType == randomService)
-                .ToList();
-
-            if (!availableDrivers.Any() || !availableVehicles.Any())
-            {
-                // Fallback if no drivers/vehicles available
-                return RedirectToAction("SelectService");
-            }
-
-            // Create emergency booking
             var booking = new Booking
             {
-                serviceType = randomService,
+                serviceType = serviceType,
+                bookingID = "EMG-" + Guid.NewGuid().ToString().Substring(0, 8),
                 bookingFullName = "EMERGENCY PATIENT",
                 bookingPhoneNumber = "000-000-0000",
-                bookingPickUp = DateTime.Now.AddMinutes(30),
-                bookingReason = "Emergency transport",
-                driver = availableDrivers[random.Next(availableDrivers.Count)],
-                vehicle = availableVehicles[random.Next(availableVehicles.Count)],
+                bookingPickUp = DateTime.Now.AddMinutes(15),
+                bookingReason = "Emergency",
                 bookingPickupAddress = "Emergency Location",
+                bookingDate = DateTime.Now,
                 isEmergency = true,
-                bookingDate = DateTime.Now
+                driver = driver,
+                vehicle = vehicle
             };
 
             Repository.AddBooking(booking);
-            TempData["Booking"] = booking;
 
-            return RedirectToAction("ConfirmBooking");
+            return Json(new { success = true });
         }
 
         public ActionResult RideHistory()
@@ -130,36 +111,16 @@ namespace HomeworkAssignment1.Controllers
         // Update the ManagePage action to handle search
         public ActionResult ManagePage(string searchDriverName, string searchServiceType)
         {
-            var drivers = Repository.GetDrivers() ?? new List<Driver>();
-            var vehicles = Repository.GetVehicles() ?? new List<Vehicle>();
-
-            // Debugging output
-            Debug.WriteLine($"Total Drivers: {drivers.Count}");
-
-            // Apply search filters if provided
-            if (!string.IsNullOrWhiteSpace(searchDriverName))
-            {
-                Debug.WriteLine($"Search Term: {searchDriverName}");
-                drivers = drivers.Where(d =>
-                    (d.driverFirstName != null && d.driverFirstName.Equals(searchDriverName, StringComparison.OrdinalIgnoreCase)) ||
-                    (d.driverLastName != null && d.driverLastName.Equals(searchDriverName, StringComparison.OrdinalIgnoreCase)))
-                    .ToList();
-            }
-
-            if (!string.IsNullOrWhiteSpace(searchServiceType))
-            {
-                drivers = drivers.Where(d =>
-                    d.driverServiceType != null && d.driverServiceType.Equals(searchServiceType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                vehicles = vehicles.Where(v =>
-                    v.vehicleServiceType != null && v.vehicleServiceType.Equals(searchServiceType, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
-
             var model = new Manage
             {
-                Drivers = drivers,
-                Vehicles = vehicles,
+                Drivers = Repository.GetDrivers()
+                    .Where(d => string.IsNullOrEmpty(searchDriverName) ||
+                           (d.driverFirstName + " " + d.driverLastName).Contains(searchDriverName))
+                    .ToList(),
+                Vehicles = Repository.GetVehicles()
+                    .Where(v => string.IsNullOrEmpty(searchServiceType) ||
+                           v.vehicleServiceType.Contains(searchServiceType))
+                    .ToList(),
                 searchDriverName = searchDriverName,
                 searchServiceType = searchServiceType
             };
@@ -171,26 +132,71 @@ namespace HomeworkAssignment1.Controllers
 
 
 
+        // In BookingController.cs
+
+        // Add Driver
+        [HttpGet]
+        public ActionResult AddDriver()
+        {
+            return View(new Driver());
+        }
+
         [HttpPost]
         public ActionResult AddDriver(Driver driver)
         {
-            driver.driverID = Guid.NewGuid().ToString();
-            Repository.AddDriver(driver);
-            return RedirectToAction("ManagePage");
+            if (ModelState.IsValid)
+            {
+                // Add to repository
+                Repository.AddDriver(driver);
+
+                // Set flag to indicate successful addition
+                TempData["DriverAdded"] = true;
+
+                // Store in TempData for client-side storage
+                TempData["NewDriver"] = $"{driver.driverID}|{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+
+                return RedirectToAction("ManagePage");
+            }
+            return View(driver);
+        }
+
+        // Edit Driver
+        [HttpGet]
+        public ActionResult EditDriver(string id)
+        {
+            // Get driver from repository
+            var driver = Repository.GetDrivers().FirstOrDefault(d => d.driverID == id);
+
+            if (driver == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(driver); // Make sure to pass the driver to the view
         }
 
         [HttpPost]
-        public ActionResult UpdateDriver(Driver driver)
+        public ActionResult EditDriver(Driver driver)
         {
-            Repository.UpdateDriver(driver);
-            return RedirectToAction("ManagePage");
+            if (ModelState.IsValid)
+            {
+                Repository.UpdateDriver(driver);
+                return RedirectToAction("ManagePage");
+            }
+
+            // If we got this far, something failed, redisplay form
+            return View(driver);
         }
 
+        // Delete Driver
+        [HttpPost]
         public ActionResult DeleteDriver(string id)
         {
             Repository.DeleteDriver(id);
             return RedirectToAction("ManagePage");
         }
+
+        // Similar actions for Vehicle (AddVehicle, EditVehicle, DeleteVehicle)
 
         [HttpPost]
         public ActionResult AddVehicle(Vehicle vehicle)

@@ -96,51 +96,53 @@
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
-    // Get selected driver and vehicle details
-    const selectedDriverId = $('#driver').val();
-    const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
-    const selectedVehicleId = $('#vehicle').val();
-    const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
+                // Get selected driver and vehicle details
+                const selectedDriverId = $('#driver').val();
+                const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
+                const selectedVehicleId = $('#vehicle').val();
+                const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
 
-    // Create a unique key for this booking
-    const bookingKey = 'booking_' + Date.now();
+                // Create a unique key for this booking
+                const bookingKey = 'booking_' + Date.now();
 
-    // Store each piece of data separately in localStorage
-    localStorage.setItem(bookingKey + '_serviceType', $('#serviceType').val());
-    localStorage.setItem(bookingKey + '_id', generateGUID());
-    localStorage.setItem(bookingKey + '_fullName', $('#fullName').val());
-    localStorage.setItem(bookingKey + '_phone', $('#phone').val());
-    localStorage.setItem(bookingKey + '_pickUpTime', $('#pickUpTime').val());
-    localStorage.setItem(bookingKey + '_reason', $('#reason').val());
-    localStorage.setItem(bookingKey + '_address', $('#pickUpAddress').val());
-    localStorage.setItem(bookingKey + '_date', new Date().toISOString());
-    localStorage.setItem(bookingKey + '_isEmergency', 'false');
-    localStorage.setItem(bookingKey + '_driverId', selectedDriverId);
-    localStorage.setItem(bookingKey + '_vehicleId', selectedVehicleId);
+                // Store each piece of data separately in localStorage
+                localStorage.setItem(bookingKey + '_serviceType', $('#serviceType').val());
+                localStorage.setItem(bookingKey + '_id', generateGUID());
+                localStorage.setItem(bookingKey + '_fullName', $('#fullName').val());
+                localStorage.setItem(bookingKey + '_phone', $('#phone').val());
+                localStorage.setItem(bookingKey + '_pickUpTime', $('#pickUpTime').val());
+                localStorage.setItem(bookingKey + '_reason', $('#reason').val());
+                localStorage.setItem(bookingKey + '_address', $('#pickUpAddress').val());
+                localStorage.setItem(bookingKey + '_date', new Date().toISOString());
+                localStorage.setItem(bookingKey + '_isEmergency', 'false');
+                localStorage.setItem(bookingKey + '_driverId', selectedDriverId);
+                localStorage.setItem(bookingKey + '_vehicleId', selectedVehicleId);
 
-    // Store driver details
-    localStorage.setItem(bookingKey + '_driverFirstName', selectedDriver.driverFirstName);
-    localStorage.setItem(bookingKey + '_driverLastName', selectedDriver.driverLastName);
-    localStorage.setItem(bookingKey + '_driverPhone', selectedDriver.driverPhoneNumber);
-    localStorage.setItem(bookingKey + '_driverService', selectedDriver.driverServiceType);
+                // Store driver details
+                localStorage.setItem(bookingKey + '_driverFirstName', selectedDriver.driverFirstName);
+                localStorage.setItem(bookingKey + '_driverLastName', selectedDriver.driverLastName);
+                localStorage.setItem(bookingKey + '_driverPhone', selectedDriver.driverPhoneNumber);
+                localStorage.setItem(bookingKey + '_driverService', selectedDriver.driverServiceType);
 
-    // Store vehicle details
-    localStorage.setItem(bookingKey + '_vehicleType', selectedVehicle.vehicleType);
-    localStorage.setItem(bookingKey + '_vehicleReg', selectedVehicle.vehicleRegistration);
-    localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.vehicleServiceType);
+                // Store vehicle details
+                localStorage.setItem(bookingKey + '_vehicleType', selectedVehicle.vehicleType);
+                localStorage.setItem(bookingKey + '_vehicleReg', selectedVehicle.vehicleRegistration);
+                localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.vehicleServiceType);
 
-    // Add to bookings list
-    let bookings = localStorage.getItem('bookingKeys') || '';
-    if (bookings) bookings += ',';
-    bookings += bookingKey;
-    localStorage.setItem('bookingKeys', bookings);
+                // Add to bookings list
+                let bookings = localStorage.getItem('bookingKeys') || '';
+                if (bookings) {
+                    bookings += ',';
+                }
+                bookings += bookingKey;
+                localStorage.setItem('bookingKeys', bookings);
 
-    // Set as current booking
-    localStorage.setItem('currentBookingKey', bookingKey);
+                // Set as current booking
+                localStorage.setItem('currentBookingKey', bookingKey);
 
-    // Redirect to confirmation
-    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
-});
+                // Redirect to confirmation
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
+            });
 
 
 

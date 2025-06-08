@@ -15,73 +15,90 @@
     </div>
 </div>
 
-<!-- In HomePage.cshtml -->
 <div class="row mt-5">
     <div class="col-md-12 text-center">
         <h3>EMERGENCY?</h3>
         <p>Only hit the button for <strong>real</strong> emergencies mind you...</p>
-
-        <a href="@Url.Action("EmergencyBooking", "Booking")" id="sosButton" class="btn btn-danger btn-lg">S.O.S</a>
+        <button id="sosButton" class="btn btn-danger btn-lg">S.O.S</button>
     </div>
 </div>
 
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Initialize sample data
-            DataService.initSampleData();
-
-            // BOOK AMBULANCE button
-            $("#bookAmbulance").click(function () {
-                window.location.href = '@Url.Action("SelectService", "Booking")';
-            });
-
-            // S.O.S button
+            // S.O.S button click handler
             $("#sosButton").click(function(e) {
-    e.preventDefault();
+                e.preventDefault();
 
-    // Get all drivers and vehicles
-    const drivers = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetDrivers()));
-    const vehicles = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetVehicles()));
+                // Get service types from server
+                const serviceTypes = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Services.serviceTypes));
 
-    // Get random service type
-    const serviceTypes = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Services.serviceTypes));
-    const randomService = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
+                // Get drivers and vehicles from server
+                const drivers = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetDrivers()));
+                const vehicles = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetVehicles()));
 
-    // Filter drivers/vehicles by service
-    const serviceDrivers = drivers.filter(d => d.driverServiceType === randomService);
-    const serviceVehicles = vehicles.filter(v => v.vehicleServiceType === randomService);
+                // Select random service type
+                const randomService = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
 
-    if(serviceDrivers.length === 0 || serviceVehicles.length === 0) {
-        alert("No available drivers/vehicles for emergency service");
-        return;
-    }
+                // Filter drivers and vehicles for selected service
+                const availableDrivers = drivers.filter(d => d.driverServiceType === randomService);
+                const availableVehicles = vehicles.filter(v => v.vehicleServiceType === randomService);
 
-    // Select random driver and vehicle
-    const randomDriver = serviceDrivers[Math.floor(Math.random() * serviceDrivers.length)];
-    const randomVehicle = serviceVehicles[Math.floor(Math.random() * serviceVehicles.length)];
+                if (availableDrivers.length === 0 || availableVehicles.length === 0) {
+                    alert("No available drivers or vehicles for emergency service");
+                    return;
+                }
 
-    const booking = {
-        serviceType: randomService,
-        bookingID: generateGUID(),
-        bookingFullName: "EMERGENCY PATIENT",
-        bookingPhoneNumber: "0000000000",
-        bookingPickUp: new Date().toLocaleTimeString(),
-        bookingReason: "Emergency",
-        vehicleID: randomVehicle.vehicleID,
-        driverID: randomDriver.driverID,
-        bookingPickupAddress: "Emergency Location",
-        bookingDate: new Date().toISOString(),
-        isEmergency: true,
-        driver: randomDriver,
-        vehicle: randomVehicle
-    };
+                // Select random driver and vehicle
+                const randomDriver = availableDrivers[Math.floor(Math.random() * availableDrivers.length)];
+                const randomVehicle = availableVehicles[Math.floor(Math.random() * availableVehicles.length)];
 
-    // Add to repository and localStorage
-    Repository.AddBooking(booking);
-    localStorage.setItem('currentBooking', JSON.stringify(booking));
-    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
-});
+                // Create booking key
+                const bookingKey = 'emergency_' + Date.now();
+
+                // Store booking data in localStorage
+                localStorage.setItem(bookingKey + '_serviceType', randomService);
+                localStorage.setItem(bookingKey + '_id', 'EMG-' + Math.floor(Math.random() * 10000));
+                localStorage.setItem(bookingKey + '_fullName', 'EMERGENCY PATIENT');
+                localStorage.setItem(bookingKey + '_phone', '000-000-0000');
+                localStorage.setItem(bookingKey + '_pickUpTime', new Date().toLocaleTimeString());
+                localStorage.setItem(bookingKey + '_reason', 'Emergency');
+                localStorage.setItem(bookingKey + '_address', 'Emergency Location');
+                localStorage.setItem(bookingKey + '_date', new Date().toISOString());
+                localStorage.setItem(bookingKey + '_isEmergency', 'true');
+                localStorage.setItem(bookingKey + '_driverId', randomDriver.driverID);
+                localStorage.setItem(bookingKey + '_vehicleId', randomVehicle.vehicleID);
+
+                // Store driver details
+                localStorage.setItem(bookingKey + '_driverFirstName', randomDriver.driverFirstName);
+                localStorage.setItem(bookingKey + '_driverLastName', randomDriver.driverLastName);
+                localStorage.setItem(bookingKey + '_driverPhone', randomDriver.driverPhoneNumber);
+                localStorage.setItem(bookingKey + '_driverService', randomDriver.driverServiceType);
+
+                // Store vehicle details
+                localStorage.setItem(bookingKey + '_vehicleType', randomVehicle.vehicleType);
+                localStorage.setItem(bookingKey + '_vehicleReg', randomVehicle.vehicleRegistration);
+                localStorage.setItem(bookingKey + '_vehicleService', randomVehicle.vehicleServiceType);
+
+                // Add to bookings list
+                let bookings = localStorage.getItem('bookingKeys') || '';
+                if (bookings) bookings += ',';
+                bookings += bookingKey;
+                localStorage.setItem('bookingKeys', bookings);
+
+                // Set as current booking
+                localStorage.setItem('currentBookingKey', bookingKey);
+
+                // Add to repository via AJAX
+                $.post('@Url.Action("EmergencyBooking", "Booking")', {
+                    serviceType: randomService,
+                    driverId: randomDriver.driverID,
+                    vehicleId: randomVehicle.vehicleID
+                }, function() {
+                    // Redirect to confirmation page
+                    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
+                });
+            });
         });
     </script>
 }
