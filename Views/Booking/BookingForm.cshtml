@@ -3,8 +3,6 @@
 @{
     ViewBag.Title = "Booking Form";
     var serviceType = ViewBag.ServiceType as string;
-    var vehiclesJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Vehicles);
-    var driversJson = Newtonsoft.Json.JsonConvert.SerializeObject(Model.Drivers);
 }
 
 <h2>@serviceType</h2>

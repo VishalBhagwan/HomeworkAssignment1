@@ -78,11 +78,99 @@ namespace HomeworkAssignment1.Controllers
         }
 
         [HttpPost]
-        public ActionResult EmergencyBooking(string serviceType, string driverId, string vehicleId)
+        public ActionResult EmergencyBooking(string serviceType)
         {
-            var driver = Repository.GetDriver(driverId);
-            var vehicle = Repository.GetVehicle(vehicleId);
+            // Get all available drivers (from both repository and Request.Cookies)
+            var allDrivers = new List<Driver>();
 
+            // 1. Get drivers from repository
+            var repoDrivers = Repository.GetDrivers()
+                .Where(d => d.driverServiceType == serviceType)
+                .ToList();
+            allDrivers.AddRange(repoDrivers);
+
+            // 2. Get drivers from Request.Cookies (simulating localStorage access)
+            for (int i = 0; i < Request.Cookies.Count; i++)
+            {
+                var key = Request.Cookies.Keys[i];
+                if (key != null && key.StartsWith("driver_") && !key.Contains("|"))
+                {
+                    var driverData = Request.Cookies[key]?.Value?.Split('|');
+                    if (driverData != null && driverData.Length == 4 && driverData[3] == serviceType)
+                    {
+                        allDrivers.Add(new Driver
+                        {
+                            driverID = key.Replace("driver_", ""),
+                            driverFirstName = driverData[0],
+                            driverLastName = driverData[1],
+                            driverPhoneNumber = driverData[2],
+                            driverServiceType = driverData[3]
+                        });
+                    }
+                }
+            }
+
+            // Get all available vehicles (from both repository and Request.Cookies)
+            var allVehicles = new List<Vehicle>();
+
+            // 1. Get vehicles from repository
+            var repoVehicles = Repository.GetVehicles()
+                .Where(v => v.vehicleServiceType == serviceType)
+                .ToList();
+            allVehicles.AddRange(repoVehicles);
+
+            // 2. Get vehicles from Request.Cookies (simulating localStorage access)
+            for (int i = 0; i < Request.Cookies.Count; i++)
+            {
+                var key = Request.Cookies.Keys[i];
+                if (key != null && key.StartsWith("vehicle_") && !key.Contains("|"))
+                {
+                    var vehicleData = Request.Cookies[key]?.Value?.Split('|');
+                    if (vehicleData != null && vehicleData.Length == 3 && vehicleData[2] == serviceType)
+                    {
+                        allVehicles.Add(new Vehicle
+                        {
+                            vehicleID = key.Replace("vehicle_", ""),
+                            vehicleType = vehicleData[0],
+                            vehicleRegistration = vehicleData[1],
+                            vehicleServiceType = vehicleData[2]
+                        });
+                    }
+                }
+            }
+
+            // Ensure we always have at least one driver and one vehicle
+            if (allDrivers.Count == 0)
+            {
+                // Create emergency driver if none available
+                allDrivers.Add(new Driver
+                {
+                    driverID = "EMG-DRIVER-" + Guid.NewGuid().ToString().Substring(0, 4),
+                    driverFirstName = "Emergency",
+                    driverLastName = "Driver",
+                    driverPhoneNumber = "111-111-1111",
+                    driverServiceType = serviceType
+                });
+            }
+
+            if (allVehicles.Count == 0)
+            {
+                // Create emergency vehicle if none available
+                allVehicles.Add(new Vehicle
+                {
+                    vehicleID = "EMG-VEHICLE-" + Guid.NewGuid().ToString().Substring(0, 4),
+                    vehicleType = "Emergency " + serviceType + " Vehicle",
+                    vehicleRegistration = "EMG" + new Random().Next(100, 999),
+                    vehicleServiceType = serviceType
+                });
+            }
+
+            // Select random driver and vehicle
+            var random = new Random();
+            var randomDriver = allDrivers[random.Next(allDrivers.Count)];
+            var randomVehicle = allVehicles[random.Next(allVehicles.Count)];
+
+            // Create emergency booking
             var booking = new Booking
             {
                 serviceType = serviceType,
@@ -94,13 +182,17 @@ namespace HomeworkAssignment1.Controllers
                 bookingPickupAddress = "Emergency Location",
                 bookingDate = DateTime.Now,
                 isEmergency = true,
-                driver = driver,
-                vehicle = vehicle
+                driver = randomDriver,
+                vehicle = randomVehicle
             };
 
             Repository.AddBooking(booking);
 
-            return Json(new { success = true });
+            // Return success with selected IDs
+            return Content(
+                $"DriverSelected={randomDriver.driverID}&VehicleSelected={randomVehicle.vehicleID}",
+                "text/plain"
+            );
         }
 
         public ActionResult RideHistory()

@@ -31,21 +31,103 @@
                 e.preventDefault();
 
                 // Get service types from server
-                const serviceTypes = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Services.serviceTypes));
+                const serviceTypes = [
+                    @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
+                    {
+                        <text>'@service',</text>
+                    }
+                ];
 
-                // Get drivers and vehicles from server
-                const drivers = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetDrivers()));
-                const vehicles = @Html.Raw(Json.Encode(HomeworkAssignment1.Models.Repository.GetVehicles()));
+                // Get drivers from repository
+                const repoDrivers = [
+                    @foreach (var driver in HomeworkAssignment1.Models.Repository.GetDrivers())
+                    {
+                        <text>
+                        {
+                            driverID: '@driver.driverID',
+                            firstName: '@driver.driverFirstName',
+                            lastName: '@driver.driverLastName',
+                            phone: '@driver.driverPhoneNumber',
+                            serviceType: '@driver.driverServiceType'
+                        },
+                        </text>
+                    }
+                ];
 
-                // Select random service type
-                const randomService = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
+                // Get vehicles from repository
+                const repoVehicles = [
+                    @foreach (var vehicle in HomeworkAssignment1.Models.Repository.GetVehicles())
+                    {
+                        <text>
+                        {
+                            vehicleID: '@vehicle.vehicleID',
+                            vehicleType: '@vehicle.vehicleType',
+                            registration: '@vehicle.vehicleRegistration',
+                            serviceType: '@vehicle.vehicleServiceType'
+                        },
+                        </text>
+                    }
+                ];
 
-                // Filter drivers and vehicles for selected service
-                const availableDrivers = drivers.filter(d => d.driverServiceType === randomService);
-                const availableVehicles = vehicles.filter(v => v.vehicleServiceType === randomService);
+                // Get drivers from localStorage
+                const localDrivers = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('driver_') && !key.includes('|')) {
+                        const driverData = localStorage.getItem(key).split('|');
+                        if (driverData.length === 4) {
+                            localDrivers.push({
+                                driverID: key.replace('driver_', ''),
+                                firstName: driverData[0],
+                                lastName: driverData[1],
+                                phone: driverData[2],
+                                serviceType: driverData[3]
+                            });
+                        }
+                    }
+                }
 
-                if (availableDrivers.length === 0 || availableVehicles.length === 0) {
-                    alert("No available drivers or vehicles for emergency service");
+                // Get vehicles from localStorage
+                const localVehicles = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('vehicle_') && !key.includes('|')) {
+                        const vehicleData = localStorage.getItem(key).split('|');
+                        if (vehicleData.length === 3) {
+                            localVehicles.push({
+                                vehicleID: key.replace('vehicle_', ''),
+                                vehicleType: vehicleData[0],
+                                registration: vehicleData[1],
+                                serviceType: vehicleData[2]
+                            });
+                        }
+                    }
+                }
+
+                // Combine repository and localStorage data
+                const allDrivers = [...repoDrivers, ...localDrivers];
+                const allVehicles = [...repoVehicles, ...localVehicles];
+
+                // Try each service type until we find one with available drivers and vehicles
+                let selectedService = null;
+                let availableDrivers = [];
+                let availableVehicles = [];
+
+                // Shuffle service types to randomize selection
+                const shuffledServices = [...serviceTypes].sort(() => 0.5 - Math.random());
+
+                for (const service of shuffledServices) {
+                    availableDrivers = allDrivers.filter(d => d.serviceType === service);
+                    availableVehicles = allVehicles.filter(v => v.serviceType === service);
+
+                    if (availableDrivers.length > 0 && availableVehicles.length > 0) {
+                        selectedService = service;
+                        break;
+                    }
+                }
+
+                if (!selectedService) {
+                    alert("No available drivers or vehicles for any service type");
                     return;
                 }
 
@@ -57,7 +139,7 @@
                 const bookingKey = 'emergency_' + Date.now();
 
                 // Store booking data in localStorage
-                localStorage.setItem(bookingKey + '_serviceType', randomService);
+                localStorage.setItem(bookingKey + '_serviceType', selectedService);
                 localStorage.setItem(bookingKey + '_id', 'EMG-' + Math.floor(Math.random() * 10000));
                 localStorage.setItem(bookingKey + '_fullName', 'EMERGENCY PATIENT');
                 localStorage.setItem(bookingKey + '_phone', '000-000-0000');
@@ -70,15 +152,15 @@
                 localStorage.setItem(bookingKey + '_vehicleId', randomVehicle.vehicleID);
 
                 // Store driver details
-                localStorage.setItem(bookingKey + '_driverFirstName', randomDriver.driverFirstName);
-                localStorage.setItem(bookingKey + '_driverLastName', randomDriver.driverLastName);
-                localStorage.setItem(bookingKey + '_driverPhone', randomDriver.driverPhoneNumber);
-                localStorage.setItem(bookingKey + '_driverService', randomDriver.driverServiceType);
+                localStorage.setItem(bookingKey + '_driverFirstName', randomDriver.firstName);
+                localStorage.setItem(bookingKey + '_driverLastName', randomDriver.lastName);
+                localStorage.setItem(bookingKey + '_driverPhone', randomDriver.phone);
+                localStorage.setItem(bookingKey + '_driverService', randomDriver.serviceType);
 
                 // Store vehicle details
                 localStorage.setItem(bookingKey + '_vehicleType', randomVehicle.vehicleType);
-                localStorage.setItem(bookingKey + '_vehicleReg', randomVehicle.vehicleRegistration);
-                localStorage.setItem(bookingKey + '_vehicleService', randomVehicle.vehicleServiceType);
+                localStorage.setItem(bookingKey + '_vehicleReg', randomVehicle.registration);
+                localStorage.setItem(bookingKey + '_vehicleService', randomVehicle.serviceType);
 
                 // Add to bookings list
                 let bookings = localStorage.getItem('bookingKeys') || '';
@@ -89,15 +171,11 @@
                 // Set as current booking
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                // Add to repository via AJAX
-                $.post('@Url.Action("EmergencyBooking", "Booking")', {
-                    serviceType: randomService,
-                    driverId: randomDriver.driverID,
-                    vehicleId: randomVehicle.vehicleID
-                }, function() {
-                    // Redirect to confirmation page
-                    window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
-                });
+                // Redirect to emergency booking action
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?serviceType=' +
+                    encodeURIComponent(selectedService) +
+                    '&driverId=' + encodeURIComponent(randomDriver.driverID) +
+                    '&vehicleId=' + encodeURIComponent(randomVehicle.vehicleID);
             });
         });
     </script>
