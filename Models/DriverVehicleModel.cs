@@ -9,5 +9,6 @@ namespace HomeworkAssignment1.Models
     {
         public List<Driver> Drivers { get; set; }
         public List<Vehicle> Vehicles { get; set; }
+        public string ServiceType { get; set; }
     }
 }

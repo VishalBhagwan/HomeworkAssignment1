@@ -26,10 +26,13 @@ namespace HomeworkAssignment1.Controllers
         {
             var viewModel = new DriverVehicleModel
             {
-                Drivers = Repository.GetDrivers().Where(d => d.driverServiceType == serviceType).ToList(),
-                Vehicles = Repository.GetVehicles().Where(v => v.vehicleServiceType == serviceType).ToList(),
+                Drivers = Repository.GetDrivers()
+                    .Where(d => d.driverServiceType == serviceType)
+                    .ToList(),
+                Vehicles = Repository.GetVehicles()
+                    .Where(v => v.vehicleServiceType == serviceType)
+                    .ToList()
             };
-
 
             if (!Services.serviceTypes.Contains(serviceType))
             {
