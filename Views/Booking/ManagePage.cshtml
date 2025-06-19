@@ -4,20 +4,15 @@
     ViewBag.Title = "Manage Drivers and Vehicles";
 }
 
+<!-- Success message handling remains the same -->
 @if (TempData["DriverUpdated"] != null && (bool)TempData["DriverUpdated"])
 {
     <script>
-        // Update localStorage with the edited driver
         var driverData = '@TempData["UpdatedDriver"]'.split('|');
         var driverId = driverData[0];
         var driverDetails = driverData.slice(1).join('|');
-
         localStorage.setItem('driver_' + driverId, driverDetails);
-
-        // Show success message
         alert('Driver updated successfully!');
-
-        // Refresh the page to show updates
         window.location.href = '@Url.Action("ManagePage")';
     </script>
 }
@@ -25,21 +20,33 @@
 @if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
 {
     <script>
-        // Add the new driver to localStorage
         var driverData = '@TempData["NewDriver"]'.split('|');
         var driverId = driverData[0];
         var driverDetails = driverData.slice(1).join('|');
-
         localStorage.setItem('driver_' + driverId, driverDetails);
-
-        // Show success message
         alert('Driver added successfully!');
-
-        // Refresh the page to show updates
         window.location.href = '@Url.Action("ManagePage")';
     </script>
 }
 
+@if (TempData["DriverUpdated"] != null)
+{
+    <script>
+        // Update localStorage with the edited driver
+        var driverData = '@TempData["UpdatedDriver"]'.split('|');
+        var driverId = driverData[0];
+        var driverDetails = driverData.slice(1).join('|');
+        localStorage.setItem('driver_' + driverId, driverDetails);
+        window.location.href = '@Url.Action("ManagePage")';
+    </script>
+}
+
+@if (TempData["RemoveLocalDriver"] != null)
+{
+    <script>
+        localStorage.removeItem('driver_' + '@TempData["RemoveLocalDriver"]');
+    </script>
+}
 
 <h2>Driver and Vehicle Management</h2>
 
@@ -72,149 +79,107 @@
 </div>
 
 @section scripts {
-    <!-- Add these if not already in your layout -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         $(document).ready(function () {
-            // Load initial data
+            // Initialize the page
             loadDrivers();
 
-            // Set up event handlers
-            $('#saveDriverBtn').click(saveDriver);
+            // Search functionality
             $('#searchDriversBtn').click(searchDrivers);
 
+            // Edit button handler
+            $(document).on('click', '.edit-driver', function(e) {
+            e.preventDefault();
+            var driverId = $(this).data('id');
+            var isLocal = $(this).data('local');
 
+            if (isLocal) {
+                // Sync localStorage with cookie
+                var driverData = localStorage.getItem('driver_' + driverId);
+                if (driverData) {
+                    document.cookie = `driver_${driverId}=${driverData}; path=/; max-age=${60*60*24*365}`;
+                }
+            }
 
-            // Use event delegation for dynamically added buttons
-            $(document).on('click', '.edit-driver', function () {
-                var driverId = $(this).data('id');
-                editDriver(driverId);
+            window.location.href = '@Url.Action("EditDriver")?id=' + driverId + '&fromLocal=' + isLocal;
             });
 
-            $(document).on('click', '.delete-driver', function () {
+            // Delete button handler
+            $(document).on('click', '.delete-driver', function() {
                 var driverId = $(this).data('id');
-                deleteDriver(driverId);
+                var isLocal = $(this).data('local');
+
+                if (confirm('Are you sure you want to delete this driver?')) {
+                    if (isLocal) {
+                        localStorage.removeItem('driver_' + driverId);
+                    }
+                    $.post('@Url.Action("DeleteDriver", "Booking")', { id: driverId }, function() {
+                        loadDrivers();
+                    });
+                }
             });
-
-
         });
 
         function loadDrivers() {
             $('#driversList').empty();
+            var shownIds = new Set();
 
-   
-            // Then check localStorage for additional drivers
+            // Load from repository (permanent storage)
+            @foreach (var driver in Model.Drivers)
+            {
+                <text>
+                if (!shownIds.has('@driver.driverID')) {
+                    addDriverRow(
+                        '@driver.driverID',
+                        '@driver.driverFirstName',
+                        '@driver.driverLastName',
+                        '@driver.driverPhoneNumber',
+                        '@driver.driverServiceType',
+                        false
+                    );
+                    shownIds.add('@driver.driverID');
+                }
+                </text>
+            }
+
+            // Load from localStorage (temporary storage)
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
-                if (key.startsWith('driver_') && !key.includes('|')) {
+                if (key.startsWith('driver_')) {
                     var driverId = key.replace('driver_', '');
-                    var driverData = localStorage.getItem(key).split('|');
-                    if (driverData.length === 4) {
-                        addDriverRow(driverId, driverData[0], driverData[1], driverData[2], driverData[3]);
+                    if (!shownIds.has(driverId)) {
+                        var driverData = localStorage.getItem(key).split('|');
+                        if (driverData.length === 4) {
+                            addDriverRow(
+                                driverId,
+                                driverData[0],
+                                driverData[1],
+                                driverData[2],
+                                driverData[3],
+                                true
+                            );
+                            shownIds.add(driverId);
+                        }
                     }
                 }
             }
         }
 
-        function addDriverRow(id, firstName, lastName, phone, service) {
-            // Only add if all fields have values
-            if (firstName && lastName && phone && service) {
-                $('#driversList').append(
-                    '<tr>' +
-                    '<td>' + firstName + ' ' + lastName + '</td>' +
-                    '<td>' + phone + '</td>' +
-                    '<td>' + service + '</td>' +
-                    '<td>' +
-                    '<a href="@Url.Action("EditDriver", "Booking")" class="btn btn-primary">Edit</a>' +
-                    '<button class="btn btn-sm btn-danger delete-driver" data-id="' + id + '">Delete</button>' +
-                    '</td>' +
-                    '</tr>'
-                );
-            }
-        }
-
-        // Rest of your functions remain the same...
-        function saveDriver() {
-            var driverId = $('#driverID').val() || Date.now().toString();
-            var driverData = [
-                $('#driverFirstName').val(),
-                $('#driverLastName').val(),
-                $('#driverPhone').val(),
-                $('#driverService').val()
-            ].join('|');
-
-            if (driverData.split('|').every(field => field.trim() !== '')) {
-                // Save to localStorage
-                localStorage.setItem('driver_' + driverId, driverData);
-
-                // Update Repository
-                var driver = {
-                    driverID: driverId,
-                    driverFirstName: $('#driverFirstName').val(),
-                    driverLastName: $('#driverLastName').val(),
-                    driverPhoneNumber: $('#driverPhone').val(),
-                    driverServiceType: $('#driverService').val(),
-                    driverImage: ""
-                };
-
-                if ($('#driverID').val()) {
-                    Repository.UpdateDriver(driver);
-                } else {
-                    Repository.AddDriver(driver);
-                }
-
-                // Close the modal
-                $('#driverModal').modal('hide');
-
-                // Clear the form
-                $('#driverForm')[0].reset();
-
-                // Refresh the drivers list
-                loadDrivers();
-
-                // Show success message
-                alert('Driver saved successfully!');
-            } else {
-                alert('Please fill in all fields');
-            }
-        }
-
-        function editDriver(driverId) {
-            var driverData = localStorage.getItem('driver_' + driverId);
-
-            if (!driverData) {
-                var driver = Repository.GetDriver(driverId);
-                if (driver) {
-                    driverData = [
-                        driver.driverFirstName,
-                        driver.driverLastName,
-                        driver.driverPhoneNumber,
-                        driver.driverServiceType
-                    ].join('|');
-                }
-            }
-
-            if (driverData) {
-                var fields = driverData.split('|');
-                $('#driverID').val(driverId);
-                $('#driverFirstName').val(fields[0]);
-                $('#driverLastName').val(fields[1]);
-                $('#driverPhone').val(fields[2]);
-                $('#driverService').val(fields[3]);
-
-                $('#driverModalTitle').text('Edit Driver');
-                $('#driverModal').modal('show');
-            }
-        }
-
-        function deleteDriver(driverId) {
-            if (confirm('Are you sure you want to delete this driver?')) {
-                localStorage.removeItem('driver_' + driverId);
-                Repository.DeleteDriver(driverId);
-                loadDrivers();
-            }
+        function addDriverRow(id, firstName, lastName, phone, service, isLocal) {
+            $('#driversList').append(
+                '<tr>' +
+                '<td>' + firstName + ' ' + lastName + '</td>' +
+                '<td>' + phone + '</td>' +
+                '<td>' + service + '</td>' +
+                '<td>' +
+                '<button class="btn btn-primary edit-driver" data-id="' + id + '" data-local="' + isLocal + '">Edit</button>' +
+                '<button class="btn btn-danger delete-driver ml-2" data-id="' + id + '" data-local="' + isLocal + '">Delete</button>' +
+                '</td>' +
+                '</tr>'
+            );
         }
 
         function searchDrivers() {

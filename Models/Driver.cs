@@ -13,5 +13,6 @@ namespace HomeworkAssignment1.Models
         public string driverLastName { get; set; }
         public string driverPhoneNumber { get; set; }
         public string driverServiceType { get; set; }
+        public bool isFromLocalStorage { get; set; }
     }
 }

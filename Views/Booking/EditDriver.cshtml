@@ -6,13 +6,14 @@
 }
 
 <div class="container mt-4">
-    <h2>Edit Driver</h2>
+    <h2>Edit DriverS</h2>
     <hr />
 
     @using (Html.BeginForm("SaveDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(model => model.driverID)
+        @Html.Hidden("isFromLocalStorage", Model.isFromLocalStorage)
 
         <div class="form-group row">
             @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
@@ -51,35 +52,32 @@
 
         <div class="form-group row">
             <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-primary mr-2">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-                <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancel
-                </a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">Cancel</a>
             </div>
         </div>
     }
 </div>
 
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
     <script>
-        $(document).ready(function () {
-            // Phone number masking
+        $(document).ready(function() {
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
 
-            // Store the original driver data for comparison
-            var originalDriverData = [
-                $('#driverFirstName').val(),
-                $('#driverLastName').val(),
-                $('#driverPhoneNumber').val(),
-                $('#driverServiceType').val()
-            ].join('|');
-
-            // Store in localStorage to detect changes
-            localStorage.setItem('originalDriverData', originalDriverData);
+            // For localStorage drivers, load directly from localStorage
+            @if (Model.isFromLocalStorage)
+            {
+                <text>
+                var driverData = localStorage.getItem('driver_' + '@Model.driverID');
+                if (driverData) {
+                    var fields = driverData.split('|');
+                    $('#driverFirstName').val(fields[0]);
+                    $('#driverLastName').val(fields[1]);
+                    $('#driverPhoneNumber').val(fields[2]);
+                    $('#driverServiceType').val(fields[3]);
+                }
+                </text>
+            }
         });
     </script>
 }

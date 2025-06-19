@@ -170,11 +170,11 @@ namespace HomeworkAssignment1.Controllers
             var randomDriver = allDrivers[random.Next(allDrivers.Count)];
             var randomVehicle = allVehicles[random.Next(allVehicles.Count)];
 
-            // Create emergency booking
-            var booking = new Booking
+        // Create emergency booking
+        var booking = new Booking
             {
                 serviceType = serviceType,
-                bookingID = "EMG-" + Guid.NewGuid().ToString().Substring(0, 8),
+                bookingID = Guid.NewGuid().ToString(),
                 bookingFullName = "EMERGENCY PATIENT",
                 bookingPhoneNumber = "000-000-0000",
                 bookingPickUp = DateTime.Now.AddMinutes(15),
@@ -193,6 +193,8 @@ namespace HomeworkAssignment1.Controllers
                 $"DriverSelected={randomDriver.driverID}&VehicleSelected={randomVehicle.vehicleID}",
                 "text/plain"
             );
+
+
         }
 
         public ActionResult RideHistory()
@@ -258,34 +260,79 @@ namespace HomeworkAssignment1.Controllers
 
         // Edit Driver
         // In your BookingController.cs
-
-        [HttpGet]
-        public ActionResult EditDriver(string id)
+        public ActionResult EditDriver(string id, bool fromLocal = false)
         {
-            // Get driver from repository
-            var driver = Repository.GetDriver(id);
-            if (driver == null)
+            if (string.IsNullOrEmpty(id))
+                return RedirectToAction("ManagePage");
+
+            Driver driver = null;
+
+            if (fromLocal)
             {
-                return HttpNotFound();
+                // Get from localStorage via cookie
+                var cookie = Request.Cookies["driver_" + id];
+                if (cookie != null)
+                {
+                    var driverData = cookie.Value.Split('|');
+                    if (driverData.Length == 4)
+                    {
+                        driver = new Driver
+                        {
+                            driverID = id,
+                            driverFirstName = driverData[0],
+                            driverLastName = driverData[1],
+                            driverPhoneNumber = driverData[2],
+                            driverServiceType = driverData[3],
+                            isFromLocalStorage = true
+                        };
+                    }
+                }
             }
+            else
+            {
+                // Always get fresh data from repository
+                driver = Repository.GetDriver(id);
+            }
+
+            if (driver == null)
+                return RedirectToAction("ManagePage");
+
             return View(driver);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveDriver(Driver driver)
+        public ActionResult SaveDriver(Driver driver, bool isFromLocalStorage)
         {
             if (ModelState.IsValid)
             {
-                // Update the repository
-                Repository.UpdateDriver(driver);
+                if (isFromLocalStorage)
+                {
+                    // Save only to localStorage
+                    var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+                    var cookie = new HttpCookie("driver_" + driver.driverID, driverData)
+                    {
+                        Expires = DateTime.Now.AddYears(1)
+                    };
+                    Response.Cookies.Add(cookie);
 
-                // Store in TempData for client-side storage
-                TempData["DriverUpdated"] = true;
-                TempData["UpdatedDriver"] = $"{driver.driverID}|{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+                    // Update TempData to refresh the view
+                    TempData["DriverUpdated"] = true;
+                    TempData["UpdatedDriver"] = $"{driver.driverID}|{driverData}";
+                }
+                else
+                {
+                    // Save only to repository (permanent storage)
+                    Repository.UpdateDriver(driver);
+
+                    // Remove any localStorage entry for this driver
+                    Response.Cookies.Remove("driver_" + driver.driverID);
+                    TempData["RemoveLocalDriver"] = driver.driverID;
+                }
 
                 return RedirectToAction("ManagePage");
             }
+
             return View("EditDriver", driver);
         }
 
