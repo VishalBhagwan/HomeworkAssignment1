@@ -1,0 +1,54 @@
+﻿@model HomeworkAssignment1.Models.Vehicle
+
+@{
+    ViewBag.Title = "Add New Vehicle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>Add New Vehicle</h2>
+    <hr />
+
+    @using (Html.BeginForm("AddVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.vehicleType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.vehicleType, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter vehicle type" } })
+                @Html.ValidationMessageFor(model => model.vehicleType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.vehicleRegistration, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.vehicleRegistration, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter registration" } })
+                @Html.ValidationMessageFor(model => model.vehicleRegistration, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.vehicleServiceType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.vehicleServiceType,
+                    new SelectList(HomeworkAssignment1.Models.Services.serviceTypes),
+                    "Select Service Type",
+                    new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.vehicleServiceType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-success mr-2">
+                    <i class="fas fa-plus"></i> Add Vehicle
+                </button>
+                <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </div>
+    }
+</div>

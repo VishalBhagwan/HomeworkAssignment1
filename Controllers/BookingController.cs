@@ -227,7 +227,7 @@ namespace HomeworkAssignment1.Controllers
 
 
 
-
+        //Drivers
 
         // In BookingController.cs
 
@@ -345,22 +345,50 @@ namespace HomeworkAssignment1.Controllers
         }
 
         // Similar actions for Vehicle (AddVehicle, EditVehicle, DeleteVehicle)
+        //Vehicles
+        [HttpGet]
+        public ActionResult AddVehicle()
+        {
+            return View(new Vehicle());
+        }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddVehicle(Vehicle vehicle)
         {
-            vehicle.vehicleID = Guid.NewGuid().ToString();
-            Repository.AddVehicle(vehicle);
-            return RedirectToAction("ManagePage");
+            if (ModelState.IsValid)
+            {
+                Repository.AddVehicle(vehicle);
+                return RedirectToAction("ManagePage");
+            }
+            return View(vehicle);
+        }
+
+        public ActionResult EditVehicle(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return RedirectToAction("ManagePage");
+
+            var vehicle = Repository.GetVehicle(id);
+            if (vehicle == null)
+                return RedirectToAction("ManagePage");
+
+            return View(vehicle);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult UpdateVehicle(Vehicle vehicle)
         {
-            Repository.UpdateVehicle(vehicle);
-            return RedirectToAction("ManagePage");
+            if (ModelState.IsValid)
+            {
+                Repository.UpdateVehicle(vehicle);
+                return RedirectToAction("ManagePage");
+            }
+            return View("EditVehicle", vehicle);
         }
 
+        [HttpPost]
         public ActionResult DeleteVehicle(string id)
         {
             Repository.DeleteVehicle(id);
