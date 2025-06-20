@@ -9,11 +9,26 @@
     <h2>Edit Driver</h2>
     <hr />
 
-    @using (Html.BeginForm("SaveDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("SaveDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data", id = "editDriverForm" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(model => model.driverID)
-        @Html.Hidden("isFromLocalStorage", Model.isFromLocalStorage)
+        @Html.Hidden("isFromLocalStorage", true)
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                <input type="file" id="driverImageFile" class="form-control-file" accept="image/*" />
+                @Html.HiddenFor(model => model.driverImage, new { id = "driverImage" })
+                <div id="imagePreview" class="mt-2" style="max-width: 150px;">
+                    @if (!string.IsNullOrEmpty(Model.driverImage))
+                    {
+                        <img src="@Model.driverImage" class="img-thumbnail" />
+                    }
+                </div>
+                @Html.ValidationMessageFor(model => model.driverImage, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group row">
             @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
@@ -51,32 +66,52 @@
         </div>
 
         <div class="form-group row">
-            @Html.LabelFor(model => model.driverImage, "Driver Image", htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                <input type="file" id="driverImageFile" class="form-control-file" accept="image/*">
-                @Html.HiddenFor(model => model.driverImage, new { id = "driverImage" })
-                <div id="imagePreview" class="mt-2" style="max-width: 150px;"></div>
-                @Html.ValidationMessageFor(model => model.driverImage, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group row">
             <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
             </div>
         </div>
     }
 </div>
 
 @section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Phone number masking
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
 
-            // Image preview and conversion
-            $('#driverImageFile').change(function() {
+            // Get driver ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const driverId = urlParams.get('id');
+
+            // Load driver data from localStorage
+            if (driverId) {
+                const driverData = localStorage.getItem('driver_' + driverId);
+                if (driverData) {
+                    const fields = driverData.split('|');
+
+                    // Set form values
+                    $('#driverFirstName').val(fields[0]);
+                    $('#driverLastName').val(fields[1]);
+                    $('#driverPhoneNumber').val(fields[2]);
+                    $('#driverServiceType').val(fields[3]);
+
+                    // Handle image if exists
+                    if (fields.length > 4 && fields[4]) {
+                        $('#driverImage').val(fields[4]);
+                        $('#imagePreview').html(`<img src="${fields[4]}" class="img-thumbnail" />`);
+                    }
+                }
+            }
+
+            // Image file change handler
+            $('#driverImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
                     if (file.size > 500000) { // 500KB limit
@@ -86,7 +121,7 @@
                     }
 
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         // Display preview
                         $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
                         // Store base64 in hidden field
@@ -95,27 +130,6 @@
                     reader.readAsDataURL(file);
                 }
             });
-
-            // Load driver data from localStorage if it's a localStorage driver
-            @if (Model.isFromLocalStorage)
-            {
-                <text>
-                var driverData = localStorage.getItem('driver_' + '@Model.driverID');
-                if (driverData) {
-                    var fields = driverData.split('|');
-                    $('#driverFirstName').val(fields[0]);
-                    $('#driverLastName').val(fields[1]);
-                    $('#driverPhoneNumber').val(fields[2]);
-                    $('#driverServiceType').val(fields[3]);
-
-                    // Load image if available
-                    if (fields.length > 4 && fields[4]) {
-                        $('#imagePreview').html(`<img src="${fields[4]}" class="img-thumbnail" />`);
-                        $('#driverImage').val(fields[4]);
-                    }
-                }
-                </text>
-            }
         });
     </script>
 }

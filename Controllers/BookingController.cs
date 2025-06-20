@@ -206,13 +206,14 @@ namespace HomeworkAssignment1.Controllers
             if (string.IsNullOrEmpty(id))
                 return RedirectToAction("ManagePage");
 
-            // For localStorage drivers, we just pass the ID
-            // The view will load the data from localStorage
-            return View(new Driver
+            // Create a driver model with the ID and fromLocal flag
+            var driver = new Driver
             {
                 driverID = id,
                 isFromLocalStorage = fromLocal
-            });
+            };
+
+            return View(driver);
         }
 
         [HttpPost]
