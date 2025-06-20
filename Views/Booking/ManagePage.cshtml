@@ -3,133 +3,132 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Driver and Vehicle Management</h2>
+<head>
+    <link href="~/Content/Manage.css" rel="stylesheet" />
+</head>
 
-@if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
-{
-    <script>
+
+<div class="management-container">
+    <div class="management-title text-center mb-3">
+        <img src="~/Images/HLogo.jpg" alt="Management Icon" class="title-icon mb-2" />
+        <h2>Driver and Vehicle Management</h2>
+    </div>
+    @if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
+    {
+        <script>
         var driverData = '@TempData["NewDriver"]'.split('|');
         var driverId = driverData[0];
         var driverDetails = driverData.slice(1).join('|');
         localStorage.setItem('driver_' + driverId, driverDetails);
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-@if (TempData["DriverUpdated"] != null && (bool)TempData["DriverUpdated"])
-{
-    <script>
+    @if (TempData["DriverUpdated"] != null && (bool)TempData["DriverUpdated"])
+    {
+        <script>
         var driverData = '@TempData["UpdatedDriver"]'.split('|');
         var driverId = driverData[0];
         var driverDetails = driverData.slice(1).join('|');
         localStorage.setItem('driver_' + driverId, driverDetails);
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-@if (TempData["DriverDeleted"] != null)
-{
-    <script>
+    @if (TempData["DriverDeleted"] != null)
+    {
+        <script>
         localStorage.removeItem('driver_' + '@TempData["DriverDeleted"]');
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-@if (TempData["VehicleAdded"] != null && (bool)TempData["VehicleAdded"])
-{
-    <script>
+    @if (TempData["VehicleAdded"] != null && (bool)TempData["VehicleAdded"])
+    {
+        <script>
         var vehicleData = '@TempData["NewVehicle"]'.split('|');
         var vehicleId = vehicleData[0];
         var vehicleDetails = vehicleData.slice(1).join('|');
         localStorage.setItem('vehicle_' + vehicleId, vehicleDetails);
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-@if (TempData["VehicleUpdated"] != null && (bool)TempData["VehicleUpdated"])
-{
-    <script>
+    @if (TempData["VehicleUpdated"] != null && (bool)TempData["VehicleUpdated"])
+    {
+        <script>
         var vehicleData = '@TempData["UpdatedVehicle"]'.split('|');
         var vehicleId = vehicleData[0];
         var vehicleDetails = vehicleData.slice(1).join('|');
         localStorage.setItem('vehicle_' + vehicleId, vehicleDetails);
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-@if (TempData["VehicleDeleted"] != null)
-{
-    <script>
+    @if (TempData["VehicleDeleted"] != null)
+    {
+        <script>
         localStorage.removeItem('vehicle_' + '@TempData["VehicleDeleted"]');
         window.location.href = '@Url.Action("ManagePage")';
-    </script>
-}
+        </script>
+    }
 
-<div class="row">
-    <div class="col-md-12">
-        <h3>Drivers</h3>
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" id="searchDriversBtn">Search</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="input-group">
-                    <select class="form-control" id="serviceTypeFilter">
-                        <option value="">All Service Types</option>
-                        @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
-                        {
-                            <option value="@service">@service</option>
-                        }
-                    </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" id="filterServiceBtn">Filter</button>
-                    </div>
-                </div>
-            </div>
+<div class="management-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Drivers</h3>
+        <a href="@Url.Action("AddDriver", "Booking")" class="btn btn-primary">Add Driver</a>
+    </div>
+
+
+    <div class="search-filter-container d-flex gap-3 mb-4 flex-wrap">
+        <div class="input-group" style="width: 300px;">
+            <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
+            <button class="btn btn-outline-secondary" id="searchDriversBtn">Search</button>
         </div>
 
-        <table class="table" id="driversTable">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Service</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="driversList">
-                <!-- Will be populated by jQuery -->
-            </tbody>
-        </table>
+        <div class="input-group" style="width: 300px;">
+            <select class="form-control" id="serviceTypeFilter">
+                <option value="">All Service Types</option>
+                @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
+                {
+                    <option value="@service">@service</option>
+                }
+            </select>
+        </div>
+    </div>
 
-        <a href="@Url.Action("AddDriver", "Booking")" class="btn btn-primary">Add Driver</a>
+
+    <div class="card-row header bg-light rounded-top">
+        <div>IMAGE</div>
+        <div>FIRST NAME</div>
+        <div>LAST NAME</div>
+        <div>PHONE NUMBER</div>
+        <div>SERVICE</div>
+        <div class="text-center">Controls</div>
+    </div>
+
+    <div id="driversList">
+        <!-- Will be populated by JavaScript -->
     </div>
 </div>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h3>Vehicles</h3>
-        <table class="table" id="vehiclesTable">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Registration</th>
-                    <th>Service</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="vehiclesList">
-                <!-- Will be populated by jQuery -->
-            </tbody>
-        </table>
+    <div class="management-card">
+        <div class="card-header">
+            <h3>Vehicles</h3>
+            <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
+        </div>
 
-        <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
+        <div class="card-row header">
+            <div>Image</div>
+            <div>Type</div>
+            <div>Registration</div>
+            <div>Service</div>
+            <div>Actions</div>
+        </div>
+
+        <div id="vehiclesList">
+            <!-- Will be populated by JavaScript -->
+        </div>
     </div>
 </div>
 
@@ -144,7 +143,7 @@
             $('#searchDriversBtn').click(searchDrivers);
 
             // Service type filter for drivers
-            $('#filterServiceBtn').click(filterByServiceType);
+            
 
             // Filter when service type dropdown changes
             $('#serviceTypeFilter').change(filterByServiceType);
@@ -230,23 +229,25 @@
         }
 
         function addDriverRow(id, firstName, lastName, phone, service, image) {
-            const imageHtml = image ?
-                `<img src="${image}" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" />` :
-                '<div class="text-muted">No image</div>';
+            const imageHtml = image
+                ? `<img src="${image}" alt="Driver Image" />`
+                : '<div class="text-muted">No image</div>';
 
-            $('#driversList').append(
-                '<tr data-service="' + service + '">' +
-                '<td>' + imageHtml + '</td>' +
-                '<td>' + firstName + ' ' + lastName + '</td>' +
-                '<td>' + phone + '</td>' +
-                '<td>' + service + '</td>' +
-                '<td>' +
-                '<button class="btn btn-primary edit-driver" data-id="' + id + '">Edit</button>' +
-                '<button class="btn btn-danger delete-driver ml-2" data-id="' + id + '">Delete</button>' +
-                '</td>' +
-                '</tr>'
-            );
+            $('#driversList').append(`
+        <div class="card-row" data-service="${service}">
+            <div>${imageHtml}</div>
+            <div>${firstName}</div>
+            <div>${lastName}</div>
+            <div>${phone}</div>
+            <div>${service}</div>
+            <div class="text-center">
+                <button class="btn edit-driver" data-id="${id}">Update</button>
+                <button class="btn delete-driver" data-id="${id}">Delete</button>
+            </div>
+        </div>
+    `);
         }
+
 
         function addVehicleRow(id, type, registration, service, image) {
             const imageHtml = image ?
@@ -267,27 +268,30 @@
             );
         }
 
-
+        //Select the correct columns by index
         function searchDrivers() {
             var searchTerm = $('#driverSearch').val().toLowerCase();
-            $('#driversList tr').each(function () {
-                var driverName = $(this).find('td:nth-child(2)').text().toLowerCase();
-                $(this).toggle(driverName.includes(searchTerm));
+            $('#driversList .card-row').each(function () {
+                var firstName = $(this).children().eq(1).text().toLowerCase();
+                var lastName = $(this).children().eq(2).text().toLowerCase();
+                var fullName = firstName + ' ' + lastName;
+                $(this).toggle(fullName.includes(searchTerm));
             });
         }
+
 
         function filterByServiceType() {
             var selectedService = $('#serviceTypeFilter').val();
             if (!selectedService) {
-                // Show all if no service type selected
-                $('#driversList tr').show();
+                $('#driversList .card-row').show(); // Show all if no filter
                 return;
             }
 
-            $('#driversList tr').each(function () {
+            $('#driversList .card-row').each(function () {
                 var serviceType = $(this).data('service');
                 $(this).toggle(serviceType === selectedService);
             });
         }
+
     </script>
 }

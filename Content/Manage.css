@@ -1,2 +1,118 @@
-﻿body {
+﻿/* Container + Card */
+.management-container {
+    padding: 30px;
 }
+
+.management-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+/* Header */
+.card-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Input Group Styling */
+.search-group .form-control,
+.search-group .form-select,
+.search-group .btn {
+    border-radius: 0;
+    border-right: none;
+    border-left: none;
+}
+
+.search-group input.form-control {
+    max-width: 200px;
+}
+
+.search-group .form-select {
+    max-width: 150px;
+}
+
+.search-group .btn {
+    border-left: none;
+}
+
+/* Rounded pill create button */
+.btn-primary.rounded-pill {
+    background-color: #3c82f4;
+    border-color: #3c82f4;
+    font-weight: 500;
+}
+
+/* Table row layout */
+.card-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1.5fr 2fr 150px;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+    .card-row.header {
+        font-weight: bold;
+        color: #555;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        background: #f9fafc;
+    }
+
+    /* Driver avatar image */
+    .card-row img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+/* Action buttons */
+.btn.edit-driver,
+.btn.edit-vehicle {
+    background-color: #f4c430;
+    border: none;
+    font-weight: 500;
+    color: #333;
+    padding: 5px 12px;
+    margin-right: 5px;
+}
+
+.btn.delete-driver,
+.btn.delete-vehicle {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 5px 12px;
+}
+
+.management-title {
+    text-align: center;
+}
+
+.title-icon {
+    height: 60px;
+    display: block;
+    margin: 0 auto 10px auto;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-driver-btn {
+    margin-left: auto;
+}
+
+
+
