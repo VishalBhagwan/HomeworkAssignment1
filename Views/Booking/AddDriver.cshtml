@@ -9,9 +9,19 @@
     <h2>Add New Driver</h2>
     <hr />
 
-    @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken()
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.driverImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                <input type="file" id="driverImageFile" class="form-control-file" accept="image/*" />
+                @Html.HiddenFor(model => model.driverImage)
+                <div id="imagePreview" class="mt-2" style="max-width: 150px;"></div>
+                @Html.ValidationMessageFor(model => model.driverImage, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group row">
             @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
@@ -68,6 +78,30 @@
         $(document).ready(function () {
             // Phone number masking
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
+
+            // Image preview and conversion
+            $('#driverImageFile').change(function () {
+                const file = this.files[0];
+                if (file) {
+                    if (file.size > 500000) { // 500KB limit
+                        alert('Image size should be less than 500KB');
+                        $(this).val('');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Display preview
+                        $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
+                        // Store base64 in hidden field
+                        $('#driverImage').val(e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').html('');
+                    $('#driverImage').val('');
+                }
+            });
         });
     </script>
 }

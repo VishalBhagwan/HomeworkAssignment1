@@ -6,6 +6,17 @@
 
 <h2>Driver and Vehicle Management</h2>
 
+@if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
+{
+    <script>
+        var driverData = '@TempData["NewDriver"]'.split('|');
+        var driverId = driverData[0];
+        var driverDetails = driverData.slice(1).join('|');
+        localStorage.setItem('driver_' + driverId, driverDetails);
+        window.location.href = '@Url.Action("ManagePage")';
+    </script>
+}
+
 <div class="row">
     <div class="col-md-12">
         <h3>Drivers</h3>
@@ -27,7 +38,6 @@
                             <option value="@service">@service</option>
                         }
                     </select>
-                    <!--!!!!!!!! -->
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" id="filterServiceBtn">Filter</button>
                     </div>
@@ -38,6 +48,7 @@
         <table class="table" id="driversTable">
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>Name</th>
                     <th>Phone</th>
                     <th>Service</th>
@@ -74,9 +85,32 @@
     </div>
 </div>
 
+// Fixed JavaScript for the Manage page
 @section scripts {
     <script>
         $(document).ready(function () {
+            // Check for driver updates from localStorage
+            @if (TempData["DriverUpdated"] != null && (bool)TempData["DriverUpdated"])
+            {
+                <text>
+                var driverData = '@TempData["UpdatedDriver"]'.split('|');
+                var driverId = driverData[0];
+                var driverDetails = driverData.slice(1).join('|');
+                localStorage.setItem('driver_' + driverId, driverDetails);
+                </text>
+            }
+
+            // Check for new drivers from TempData
+            @if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
+            {
+                <text>
+                var driverData = '@TempData["NewDriver"]'.split('|');
+                var driverId = driverData[0];
+                var driverDetails = driverData.slice(1).join('|');
+                localStorage.setItem('driver_' + driverId, driverDetails);
+                </text>
+            }
+
             // Initialize the page
             loadDrivers();
             loadVehicles();
@@ -90,12 +124,19 @@
             // Filter when service type dropdown changes
             $('#serviceTypeFilter').change(filterByServiceType);
 
-            // Driver button handlers
+            // Driver button handlers - FIXED
             $(document).on('click', '.edit-driver', function(e) {
                 e.preventDefault();
                 var driverId = $(this).data('id');
                 var isLocal = $(this).data('local');
-                window.location.href = '@Url.Action("EditDriver")?id=' + driverId + '&fromLocal=' + isLocal;
+
+                console.log('Edit driver clicked:', driverId, 'isLocal:', isLocal); // Debug log
+
+                // Construct the URL properly
+                var url = '@Url.Action("EditDriver", "Booking")' + '?id=' + encodeURIComponent(driverId) + '&fromLocal=' + isLocal;
+                console.log('Navigating to:', url); // Debug log
+
+                window.location.href = url;
             });
 
             $(document).on('click', '.delete-driver', function() {
@@ -105,10 +146,14 @@
                 if (confirm('Are you sure you want to delete this driver?')) {
                     if (isLocal) {
                         localStorage.removeItem('driver_' + driverId);
+                        loadDrivers(); // Reload the table immediately
+                    } else {
+                        $.post('@Url.Action("DeleteDriver", "Booking")', { id: driverId }, function() {
+                            loadDrivers();
+                        }).fail(function() {
+                            alert('Error deleting driver');
+                        });
                     }
-                    $.post('@Url.Action("DeleteDriver", "Booking")', { id: driverId }, function() {
-                        loadDrivers();
-                    });
                 }
             });
 
@@ -116,7 +161,7 @@
             $(document).on('click', '.edit-vehicle', function(e) {
                 e.preventDefault();
                 var vehicleId = $(this).data('id');
-                window.location.href = '@Url.Action("EditVehicle")?id=' + vehicleId;
+                window.location.href = '@Url.Action("EditVehicle", "Booking")?id=' + encodeURIComponent(vehicleId);
             });
 
             $(document).on('click', '.delete-vehicle', function() {
@@ -126,10 +171,14 @@
                 if (confirm('Are you sure you want to delete this vehicle?')) {
                     if (isLocal) {
                         localStorage.removeItem('vehicle_' + vehicleId);
+                        loadVehicles(); // Reload the table immediately
+                    } else {
+                        $.post('@Url.Action("DeleteVehicle", "Booking")', { id: vehicleId }, function() {
+                            loadVehicles();
+                        }).fail(function() {
+                            alert('Error deleting vehicle');
+                        });
                     }
-                    $.post('@Url.Action("DeleteVehicle", "Booking")', { id: vehicleId }, function() {
-                        loadVehicles();
-                    });
                 }
             });
         });
@@ -149,6 +198,7 @@
                         '@driver.driverLastName',
                         '@driver.driverPhoneNumber',
                         '@driver.driverServiceType',
+                        '@driver.driverImage',
                         false
                     );
                     shownIds.add('@driver.driverID');
@@ -159,20 +209,25 @@
             // Load from localStorage
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
-                if (key.startsWith('driver_')) {
+                if (key && key.startsWith('driver_')) {
                     var driverId = key.replace('driver_', '');
                     if (!shownIds.has(driverId)) {
-                        var driverData = localStorage.getItem(key).split('|');
-                        if (driverData.length === 4) {
-                            addDriverRow(
-                                driverId,
-                                driverData[0],
-                                driverData[1],
-                                driverData[2],
-                                driverData[3],
-                                true
-                            );
-                            shownIds.add(driverId);
+                        var driverData = localStorage.getItem(key);
+                        if (driverData) {
+                            var driverFields = driverData.split('|');
+                            if (driverFields.length >= 4) {
+                                var image = driverFields.length > 4 ? driverFields[4] : null;
+                                addDriverRow(
+                                    driverId,
+                                    driverFields[0],
+                                    driverFields[1],
+                                    driverFields[2],
+                                    driverFields[3],
+                                    image,
+                                    true
+                                );
+                                shownIds.add(driverId);
+                            }
                         }
                     }
                 }
@@ -203,34 +258,42 @@
             // Load from localStorage
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
-                if (key.startsWith('vehicle_')) {
+                if (key && key.startsWith('vehicle_')) {
                     var vehicleId = key.replace('vehicle_', '');
                     if (!shownIds.has(vehicleId)) {
-                        var vehicleData = localStorage.getItem(key).split('|');
-                        if (vehicleData.length === 3) {
-                            addVehicleRow(
-                                vehicleId,
-                                vehicleData[0],
-                                vehicleData[1],
-                                vehicleData[2],
-                                true
-                            );
-                            shownIds.add(vehicleId);
+                        var vehicleData = localStorage.getItem(key);
+                        if (vehicleData) {
+                            var vehicleFields = vehicleData.split('|');
+                            if (vehicleFields.length === 3) {
+                                addVehicleRow(
+                                    vehicleId,
+                                    vehicleFields[0],
+                                    vehicleFields[1],
+                                    vehicleFields[2],
+                                    true
+                                );
+                                shownIds.add(vehicleId);
+                            }
                         }
                     }
                 }
             }
         }
 
-        function addDriverRow(id, firstName, lastName, phone, service, isLocal) {
+        function addDriverRow(id, firstName, lastName, phone, service, image, isLocal) {
+            const imageHtml = image ?
+                `<img src="${image}" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" />` :
+                '<div class="text-muted">No image</div>';
+
             $('#driversList').append(
                 '<tr data-service="' + service + '">' +
+                '<td>' + imageHtml + '</td>' +
                 '<td>' + firstName + ' ' + lastName + '</td>' +
                 '<td>' + phone + '</td>' +
                 '<td>' + service + '</td>' +
                 '<td>' +
-                '<button class="btn btn-primary edit-driver" data-id="' + id + '" data-local="' + isLocal + '">Edit</button>' +
-                '<button class="btn btn-danger delete-driver ml-2" data-id="' + id + '" data-local="' + isLocal + '">Delete</button>' +
+                '<button class="btn btn-sm btn-primary edit-driver" data-id="' + id + '" data-local="' + isLocal + '">Edit</button> ' +
+                '<button class="btn btn-sm btn-danger delete-driver ml-2" data-id="' + id + '" data-local="' + isLocal + '">Delete</button>' +
                 '</td>' +
                 '</tr>'
             );
@@ -243,8 +306,8 @@
                 '<td>' + registration + '</td>' +
                 '<td>' + service + '</td>' +
                 '<td>' +
-                '<button class="btn btn-primary edit-vehicle" data-id="' + id + '" data-local="' + isLocal + '">Edit</button>' +
-                '<button class="btn btn-danger delete-vehicle ml-2" data-id="' + id + '" data-local="' + isLocal + '">Delete</button>' +
+                '<button class="btn btn-sm btn-primary edit-vehicle" data-id="' + id + '" data-local="' + isLocal + '">Edit</button> ' +
+                '<button class="btn btn-sm btn-danger delete-vehicle ml-2" data-id="' + id + '" data-local="' + isLocal + '">Delete</button>' +
                 '</td>' +
                 '</tr>'
             );
@@ -253,7 +316,7 @@
         function searchDrivers() {
             var searchTerm = $('#driverSearch').val().toLowerCase();
             $('#driversList tr').each(function () {
-                var driverName = $(this).find('td:first').text().toLowerCase();
+                var driverName = $(this).find('td:nth-child(2)').text().toLowerCase();
                 $(this).toggle(driverName.includes(searchTerm));
             });
         }

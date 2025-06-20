@@ -238,6 +238,9 @@ namespace HomeworkAssignment1.Controllers
             return View(new Driver());
         }
 
+        // Remove all Repository references and replace with localStorage logic
+        // For example, change the AddDriver action to:
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult AddDriver(Driver driver)
@@ -247,11 +250,20 @@ namespace HomeworkAssignment1.Controllers
                 // Add to repository
                 Repository.AddDriver(driver);
 
+                // Prepare data for localStorage
+                var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+
+                // Add image if exists
+                if (!string.IsNullOrEmpty(driver.driverImage))
+                {
+                    driverData += $"|{driver.driverImage}";
+                }
+
                 // Set flag to indicate successful addition
                 TempData["DriverAdded"] = true;
 
                 // Store in TempData for client-side storage
-                TempData["NewDriver"] = $"{driver.driverID}|{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+                TempData["NewDriver"] = $"{driver.driverID}|{driverData}";
 
                 return RedirectToAction("ManagePage");
             }
@@ -260,6 +272,8 @@ namespace HomeworkAssignment1.Controllers
 
         // Edit Driver
         // In your BookingController.cs
+        // Example for EditDriver
+        [HttpGet]
         public ActionResult EditDriver(string id, bool fromLocal = false)
         {
             if (string.IsNullOrEmpty(id))
@@ -269,33 +283,26 @@ namespace HomeworkAssignment1.Controllers
 
             if (fromLocal)
             {
-                // Get from localStorage via cookie
-                var cookie = Request.Cookies["driver_" + id];
-                if (cookie != null)
+                // For localStorage drivers, we need to get data from cookies (server-side simulation)
+                // or pass the data through TempData/ViewBag
+                // Since we can't access localStorage directly from server, we'll create a placeholder
+                driver = new Driver
                 {
-                    var driverData = cookie.Value.Split('|');
-                    if (driverData.Length == 4)
-                    {
-                        driver = new Driver
-                        {
-                            driverID = id,
-                            driverFirstName = driverData[0],
-                            driverLastName = driverData[1],
-                            driverPhoneNumber = driverData[2],
-                            driverServiceType = driverData[3],
-                            isFromLocalStorage = true
-                        };
-                    }
-                }
+                    driverID = id,
+                    isFromLocalStorage = true
+                    // Other fields will be populated by JavaScript from localStorage
+                };
             }
             else
             {
-                // Always get fresh data from repository
+                // Get from repository
                 driver = Repository.GetDriver(id);
+                if (driver == null)
+                {
+                    return HttpNotFound("Driver not found");
+                }
+                driver.isFromLocalStorage = false;
             }
-
-            if (driver == null)
-                return RedirectToAction("ManagePage");
 
             return View(driver);
         }
@@ -308,26 +315,21 @@ namespace HomeworkAssignment1.Controllers
             {
                 if (isFromLocalStorage)
                 {
-                    // Save only to localStorage
+                    // For localStorage drivers, we'll use TempData to pass update info to the view
                     var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
-                    var cookie = new HttpCookie("driver_" + driver.driverID, driverData)
-                    {
-                        Expires = DateTime.Now.AddYears(1)
-                    };
-                    Response.Cookies.Add(cookie);
 
-                    // Update TempData to refresh the view
+                    if (!string.IsNullOrEmpty(driver.driverImage))
+                    {
+                        driverData += $"|{driver.driverImage}";
+                    }
+
                     TempData["DriverUpdated"] = true;
                     TempData["UpdatedDriver"] = $"{driver.driverID}|{driverData}";
                 }
                 else
                 {
-                    // Save only to repository (permanent storage)
+                    // Update in repository
                     Repository.UpdateDriver(driver);
-
-                    // Remove any localStorage entry for this driver
-                    Response.Cookies.Remove("driver_" + driver.driverID);
-                    TempData["RemoveLocalDriver"] = driver.driverID;
                 }
 
                 return RedirectToAction("ManagePage");
