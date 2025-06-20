@@ -37,37 +37,7 @@
                         <text>'@service',</text>
                     }
                 ];
-
-                // Get drivers from repository
-                const repoDrivers = [
-                    @foreach (var driver in HomeworkAssignment1.Models.Repository.GetDrivers())
-                    {
-                        <text>
-                        {
-                            driverID: '@driver.driverID',
-                            firstName: '@driver.driverFirstName',
-                            lastName: '@driver.driverLastName',
-                            phone: '@driver.driverPhoneNumber',
-                            serviceType: '@driver.driverServiceType'
-                        },
-                        </text>
-                    }
-                ];
-
-                // Get vehicles from repository
-                const repoVehicles = [
-                    @foreach (var vehicle in HomeworkAssignment1.Models.Repository.GetVehicles())
-                    {
-                        <text>
-                        {
-                            vehicleID: '@vehicle.vehicleID',
-                            vehicleType: '@vehicle.vehicleType',
-                            registration: '@vehicle.vehicleRegistration',
-                            serviceType: '@vehicle.vehicleServiceType'
-                        },
-                        </text>
-                    }
-                ];
+                
 
                 // Get drivers from localStorage
                 const localDrivers = [];
@@ -105,8 +75,8 @@
                 }
 
                 // Combine repository and localStorage data
-                const allDrivers = [...repoDrivers, ...localDrivers];
-                const allVehicles = [...repoVehicles, ...localVehicles];
+                const allDrivers = [ ...localDrivers];
+                const allVehicles = [ ...localVehicles];
 
                 // Try each service type until we find one with available drivers and vehicles
                 let selectedService = null;

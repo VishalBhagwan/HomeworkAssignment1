@@ -1,5 +1,4 @@
 ﻿@model HomeworkAssignment1.Models.DriverVehicleModel
-
 @{
     ViewBag.Title = "Booking Form";
     var serviceType = ViewBag.ServiceType as string;
@@ -71,78 +70,46 @@
         $(document).ready(function () {
             const serviceType = $('#serviceType').val();
 
-            // Get repository data
-            const repoDrivers = [
-                @foreach (var driver in Model.Drivers)
-                {
-                    <text>
-                    {
-                        driverID: '@driver.driverID',
-                        firstName: '@driver.driverFirstName',
-                        lastName: '@driver.driverLastName',
-                        phone: '@driver.driverPhoneNumber',
-                        serviceType: '@driver.driverServiceType'
-                    },
-                    </text>
-                }
-            ];
-
-            const repoVehicles = [
-                @foreach (var vehicle in Model.Vehicles)
-                {
-                    <text>
-                    {
-                        vehicleID: '@vehicle.vehicleID',
-                        vehicleType: '@vehicle.vehicleType',
-                        registration: '@vehicle.vehicleRegistration',
-                        serviceType: '@vehicle.vehicleServiceType'
-                    },
-                    </text>
-                }
-            ];
-
-            // Get localStorage data
-            const localDrivers = [];
-            const localVehicles = [];
+            // Load data from localStorage
+            const drivers = [];
+            const vehicles = [];
 
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
 
-                // Handle drivers
-                if (key.startsWith('driver_') && !key.includes('|')) {
+                // Handle drivers (including those with images)
+                if (key.startsWith('driver_')) {
                     const driverData = localStorage.getItem(key).split('|');
-                    if (driverData.length === 4 && driverData[3] === serviceType) {
-                        localDrivers.push({
+                    if (driverData.length >= 4 && driverData[3] === serviceType) {
+                        drivers.push({
                             driverID: key.replace('driver_', ''),
                             firstName: driverData[0],
                             lastName: driverData[1],
                             phone: driverData[2],
-                            serviceType: driverData[3]
+                            serviceType: driverData[3],
+                            image: driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg'
                         });
                     }
                 }
 
                 // Handle vehicles
-                if (key.startsWith('vehicle_') && !key.includes('|')) {
+                if (key.startsWith('vehicle_')) {
                     const vehicleData = localStorage.getItem(key).split('|');
-                    if (vehicleData.length === 3 && vehicleData[2] === serviceType) {
-                        localVehicles.push({
+                    if (vehicleData.length >= 3 && vehicleData[2] === serviceType) {
+                        vehicles.push({
                             vehicleID: key.replace('vehicle_', ''),
                             vehicleType: vehicleData[0],
                             registration: vehicleData[1],
-                            serviceType: vehicleData[2]
+                            serviceType: vehicleData[2],
+                            image: vehicleData.length > 3 ? vehicleData[3] : '/Content/images/default-vehicle.jpg'
                         });
                     }
                 }
             }
 
-            // Combine sources
-            const allDrivers = [...repoDrivers, ...localDrivers];
-            const allVehicles = [...repoVehicles, ...localVehicles];
-
             // Populate dropdowns
             const $driverSelect = $('#driver');
-            allDrivers.forEach(driver => {
+            drivers.forEach(driver => {
                 $driverSelect.append(
                     $('<option></option>')
                         .val(driver.driverID)
@@ -151,7 +118,7 @@
             });
 
             const $vehicleSelect = $('#vehicle');
-            allVehicles.forEach(vehicle => {
+            vehicles.forEach(vehicle => {
                 $vehicleSelect.append(
                     $('<option></option>')
                         .val(vehicle.vehicleID)
@@ -163,11 +130,11 @@
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
-                // Find selected items
+                // Get selected driver and vehicle
                 const selectedDriverId = $('#driver').val();
-                const selectedDriver = allDrivers.find(d => d.driverID === selectedDriverId);
+                const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
                 const selectedVehicleId = $('#vehicle').val();
-                const selectedVehicle = allVehicles.find(v => v.vehicleID === selectedVehicleId);
+                const selectedVehicle = vehicles.find(v => v.vehicleID === selectedVehicleId);
 
                 if (!selectedDriver || !selectedVehicle) {
                     alert('Please select both a driver and vehicle');
@@ -190,16 +157,15 @@
                 localStorage.setItem(bookingKey + '_driverId', selectedDriverId);
                 localStorage.setItem(bookingKey + '_vehicleId', selectedVehicleId);
 
-                // Store driver details
-                localStorage.setItem(bookingKey + '_driverFirstName', selectedDriver.firstName);
-                localStorage.setItem(bookingKey + '_driverLastName', selectedDriver.lastName);
-                localStorage.setItem(bookingKey + '_driverPhone', selectedDriver.phone);
-                localStorage.setItem(bookingKey + '_driverService', selectedDriver.serviceType);
+                // Store complete driver data including image
+                localStorage.setItem(bookingKey + '_driverData', localStorage.getItem('driver_' + selectedDriverId));
+                localStorage.setItem(bookingKey + '_driverImage', selectedDriver.image);
 
                 // Store vehicle details
                 localStorage.setItem(bookingKey + '_vehicleType', selectedVehicle.vehicleType);
                 localStorage.setItem(bookingKey + '_vehicleReg', selectedVehicle.registration);
                 localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.serviceType);
+                localStorage.setItem(bookingKey + '_vehicleImage', selectedVehicle.image);
 
                 // Update bookings list
                 let bookings = localStorage.getItem('bookingKeys') || '';
@@ -207,8 +173,8 @@
                 localStorage.setItem('bookingKeys', bookings + bookingKey);
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                // Redirect to confirmation
-                window.location.href = '@Url.Action("ConfirmBooking", "Booking")';
+                // Redirect to confirmation with booking ID
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey.replace('booking_', '');
             });
 
             function generateGUID() {

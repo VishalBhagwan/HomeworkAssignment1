@@ -1,7 +1,6 @@
 ﻿using HomeworkAssignment1.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -16,31 +15,20 @@ namespace HomeworkAssignment1.Controllers
             return View();
         }
 
-        public ActionResult SelectService() 
+        public ActionResult SelectService()
         {
-            //ViewBag.Service = Services.serviceTypes;
             return View();
         }
 
         public ActionResult BookingForm(string serviceType)
         {
-            var viewModel = new DriverVehicleModel
-            {
-                Drivers = Repository.GetDrivers()
-                    .Where(d => d.driverServiceType == serviceType)
-                    .ToList(),
-                Vehicles = Repository.GetVehicles()
-                    .Where(v => v.vehicleServiceType == serviceType)
-                    .ToList()
-            };
-
             if (!Services.serviceTypes.Contains(serviceType))
             {
                 return RedirectToAction("SelectService");
             }
 
             ViewBag.ServiceType = serviceType;
-            return View(viewModel);
+            return View(new DriverVehicleModel { ServiceType = serviceType });
         }
 
         [HttpPost]
@@ -50,100 +38,60 @@ namespace HomeworkAssignment1.Controllers
             {
                 serviceType = Request.Form["serviceType"],
                 bookingFullName = Request.Form["bookingFullName"],
-                // ... other properties ...
-                driver = Repository.GetDriver(Request.Form["driverID"]),
-                vehicle = Repository.GetVehicle(Request.Form["vehicleID"])
+                bookingPhoneNumber = Request.Form["bookingPhoneNumber"],
+                bookingPickUp = DateTime.Parse(Request.Form["bookingPickUp"]),
+                bookingReason = Request.Form["bookingReason"],
+                bookingPickupAddress = Request.Form["bookingPickupAddress"],
+                bookingDate = DateTime.Now,
+                isEmergency = false,
+                driverID = Request.Form["driverID"],
+                vehicleID = Request.Form["vehicleID"]
             };
-            Repository.AddBooking(booking); // Add this line
-                                            // Add the booking to local storage
-            TempData["Booking"] = booking;
+
+            // Store booking in localStorage via TempData
+            var bookingData = $"{booking.serviceType}|{booking.bookingFullName}|{booking.bookingPhoneNumber}|" +
+                            $"{booking.bookingPickUp}|{booking.bookingReason}|{booking.bookingPickupAddress}|" +
+                            $"{booking.bookingDate}|{booking.isEmergency}|{booking.driverID}|{booking.vehicleID}";
+
+            TempData["NewBooking"] = $"{booking.bookingID}|{bookingData}";
+            TempData["BookingAdded"] = true;
+
             return RedirectToAction("ConfirmBooking");
         }
 
-        public ActionResult ConfirmBooking()
+        public ActionResult ConfirmBooking(string bookingId)
         {
+            ViewBag.BookingId = bookingId;
             return View();
         }
 
         public ActionResult ViewBooking(string id)
         {
-            var booking = Repository.GetBookingByID(id);
-            if (booking == null)
-            {
-                return HttpNotFound();
-            }
-
-            TempData["Booking"] = booking;
+            // Bookings are stored in localStorage, so we just pass the ID
+            TempData["BookingId"] = id;
             return RedirectToAction("ConfirmBooking");
         }
 
         [HttpPost]
         public ActionResult EmergencyBooking(string serviceType)
         {
-            // Get all available drivers (from both repository and Request.Cookies)
+            // Get all available drivers and vehicles from localStorage simulation
             var allDrivers = new List<Driver>();
-
-            // 1. Get drivers from repository
-            var repoDrivers = Repository.GetDrivers()
-                .Where(d => d.driverServiceType == serviceType)
-                .ToList();
-            allDrivers.AddRange(repoDrivers);
-
-            // 2. Get drivers from Request.Cookies (simulating localStorage access)
-            for (int i = 0; i < Request.Cookies.Count; i++)
-            {
-                var key = Request.Cookies.Keys[i];
-                if (key != null && key.StartsWith("driver_") && !key.Contains("|"))
-                {
-                    var driverData = Request.Cookies[key]?.Value?.Split('|');
-                    if (driverData != null && driverData.Length == 4 && driverData[3] == serviceType)
-                    {
-                        allDrivers.Add(new Driver
-                        {
-                            driverID = key.Replace("driver_", ""),
-                            driverFirstName = driverData[0],
-                            driverLastName = driverData[1],
-                            driverPhoneNumber = driverData[2],
-                            driverServiceType = driverData[3]
-                        });
-                    }
-                }
-            }
-
-            // Get all available vehicles (from both repository and Request.Cookies)
             var allVehicles = new List<Vehicle>();
 
-            // 1. Get vehicles from repository
-            var repoVehicles = Repository.GetVehicles()
-                .Where(v => v.vehicleServiceType == serviceType)
-                .ToList();
-            allVehicles.AddRange(repoVehicles);
+            // In a real app, this would come from localStorage via JavaScript
+            // For server-side simulation, we'll check if there are matching entries first
+            var matchingDrivers = new List<Driver>();
+            var matchingVehicles = new List<Vehicle>();
 
-            // 2. Get vehicles from Request.Cookies (simulating localStorage access)
-            for (int i = 0; i < Request.Cookies.Count; i++)
-            {
-                var key = Request.Cookies.Keys[i];
-                if (key != null && key.StartsWith("vehicle_") && !key.Contains("|"))
-                {
-                    var vehicleData = Request.Cookies[key]?.Value?.Split('|');
-                    if (vehicleData != null && vehicleData.Length == 3 && vehicleData[2] == serviceType)
-                    {
-                        allVehicles.Add(new Vehicle
-                        {
-                            vehicleID = key.Replace("vehicle_", ""),
-                            vehicleType = vehicleData[0],
-                            vehicleRegistration = vehicleData[1],
-                            vehicleServiceType = vehicleData[2]
-                        });
-                    }
-                }
-            }
+            // Check if we have matching drivers/vehicles in the repository
+            matchingDrivers = Repository.GetDrivers().Where(d => d.driverServiceType == serviceType).ToList();
+            matchingVehicles = Repository.GetVehicles().Where(v => v.vehicleServiceType == serviceType).ToList();
 
-            // Ensure we always have at least one driver and one vehicle
-            if (allDrivers.Count == 0)
+            // If no matches in repository, create emergency entries
+            if (matchingDrivers.Count == 0)
             {
-                // Create emergency driver if none available
-                allDrivers.Add(new Driver
+                matchingDrivers.Add(new Driver
                 {
                     driverID = "EMG-DRIVER-" + Guid.NewGuid().ToString().Substring(0, 4),
                     driverFirstName = "Emergency",
@@ -153,10 +101,9 @@ namespace HomeworkAssignment1.Controllers
                 });
             }
 
-            if (allVehicles.Count == 0)
+            if (matchingVehicles.Count == 0)
             {
-                // Create emergency vehicle if none available
-                allVehicles.Add(new Vehicle
+                matchingVehicles.Add(new Vehicle
                 {
                     vehicleID = "EMG-VEHICLE-" + Guid.NewGuid().ToString().Substring(0, 4),
                     vehicleType = "Emergency " + serviceType + " Vehicle",
@@ -167,11 +114,11 @@ namespace HomeworkAssignment1.Controllers
 
             // Select random driver and vehicle
             var random = new Random();
-            var randomDriver = allDrivers[random.Next(allDrivers.Count)];
-            var randomVehicle = allVehicles[random.Next(allVehicles.Count)];
+            var selectedDriver = matchingDrivers[random.Next(matchingDrivers.Count)];
+            var selectedVehicle = matchingVehicles[random.Next(matchingVehicles.Count)];
 
-        // Create emergency booking
-        var booking = new Booking
+            // Create emergency booking
+            var booking = new Booking
             {
                 serviceType = serviceType,
                 bookingID = Guid.NewGuid().ToString(),
@@ -182,64 +129,46 @@ namespace HomeworkAssignment1.Controllers
                 bookingPickupAddress = "Emergency Location",
                 bookingDate = DateTime.Now,
                 isEmergency = true,
-                driver = randomDriver,
-                vehicle = randomVehicle
+                driverID = selectedDriver.driverID,
+                vehicleID = selectedVehicle.vehicleID
             };
 
-            Repository.AddBooking(booking);
+            // Store booking in localStorage via TempData
+            var bookingData = $"{booking.serviceType}|{booking.bookingFullName}|{booking.bookingPhoneNumber}|" +
+                            $"{booking.bookingPickUp}|{booking.bookingReason}|{booking.bookingPickupAddress}|" +
+                            $"{booking.bookingDate}|{booking.isEmergency}|{booking.driverID}|{booking.vehicleID}";
 
-            // Return success with selected IDs
+            TempData["NewBooking"] = $"{booking.bookingID}|{bookingData}";
+            TempData["BookingAdded"] = true;
+
             return Content(
-                $"DriverSelected={randomDriver.driverID}&VehicleSelected={randomVehicle.vehicleID}",
+                $"DriverSelected={selectedDriver.driverID}&VehicleSelected={selectedVehicle.vehicleID}",
                 "text/plain"
             );
-
-
         }
 
         public ActionResult RideHistory()
         {
-            var bookings = Repository.GetBookings().OrderByDescending(b => b.bookingDate).ToList();
-
-            return View(bookings);
+            // Ride history is handled client-side with localStorage
+            return View();
         }
 
-        //Manage
-        // Update the ManagePage action to handle search
+        // Manage Page - No repository data needed
         public ActionResult ManagePage(string searchDriverName, string searchServiceType)
         {
-            var model = new Manage
+            return View(new Manage
             {
-                Drivers = Repository.GetDrivers()
-                    .Where(d => string.IsNullOrEmpty(searchDriverName) ||
-                           (d.driverFirstName + " " + d.driverLastName).Contains(searchDriverName))
-                    .ToList(),
-                Vehicles = Repository.GetVehicles()
-                    .Where(v => string.IsNullOrEmpty(searchServiceType) ||
-                           v.vehicleServiceType.Contains(searchServiceType))
-                    .ToList(),
                 searchDriverName = searchDriverName,
                 searchServiceType = searchServiceType
-            };
-
-            return View(model);
+            });
         }
 
-
-
-        //Drivers
-
-        // In BookingController.cs
-
-        // Add Driver
+        // Driver CRUD Operations
         [HttpGet]
         public ActionResult AddDriver()
         {
             return View(new Driver());
         }
-
-        // Remove all Repository references and replace with localStorage logic
-        // For example, change the AddDriver action to:
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -247,64 +176,43 @@ namespace HomeworkAssignment1.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Add to repository
-                Repository.AddDriver(driver);
+                // Generate ID if not set
+                if (string.IsNullOrEmpty(driver.driverID))
+                {
+                    driver.driverID = Guid.NewGuid().ToString();
+                }
 
                 // Prepare data for localStorage
-                var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+                var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|" +
+                               $"{driver.driverPhoneNumber}|{driver.driverServiceType}";
 
-                // Add image if exists
                 if (!string.IsNullOrEmpty(driver.driverImage))
                 {
                     driverData += $"|{driver.driverImage}";
                 }
 
-                // Set flag to indicate successful addition
-                TempData["DriverAdded"] = true;
-
                 // Store in TempData for client-side storage
                 TempData["NewDriver"] = $"{driver.driverID}|{driverData}";
+                TempData["DriverAdded"] = true;
 
                 return RedirectToAction("ManagePage");
             }
             return View(driver);
         }
 
-        // Edit Driver
-        // In your BookingController.cs
-        // Example for EditDriver
         [HttpGet]
         public ActionResult EditDriver(string id, bool fromLocal = false)
         {
             if (string.IsNullOrEmpty(id))
                 return RedirectToAction("ManagePage");
 
-            Driver driver = null;
-
-            if (fromLocal)
+            // For localStorage drivers, we just pass the ID
+            // The view will load the data from localStorage
+            return View(new Driver
             {
-                // For localStorage drivers, we need to get data from cookies (server-side simulation)
-                // or pass the data through TempData/ViewBag
-                // Since we can't access localStorage directly from server, we'll create a placeholder
-                driver = new Driver
-                {
-                    driverID = id,
-                    isFromLocalStorage = true
-                    // Other fields will be populated by JavaScript from localStorage
-                };
-            }
-            else
-            {
-                // Get from repository
-                driver = Repository.GetDriver(id);
-                if (driver == null)
-                {
-                    return HttpNotFound("Driver not found");
-                }
-                driver.isFromLocalStorage = false;
-            }
-
-            return View(driver);
+                driverID = id,
+                isFromLocalStorage = fromLocal
+            });
         }
 
         [HttpPost]
@@ -315,8 +223,9 @@ namespace HomeworkAssignment1.Controllers
             {
                 if (isFromLocalStorage)
                 {
-                    // For localStorage drivers, we'll use TempData to pass update info to the view
-                    var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|{driver.driverPhoneNumber}|{driver.driverServiceType}";
+                    // Prepare data for localStorage update
+                    var driverData = $"{driver.driverFirstName}|{driver.driverLastName}|" +
+                                   $"{driver.driverPhoneNumber}|{driver.driverServiceType}";
 
                     if (!string.IsNullOrEmpty(driver.driverImage))
                     {
@@ -326,28 +235,23 @@ namespace HomeworkAssignment1.Controllers
                     TempData["DriverUpdated"] = true;
                     TempData["UpdatedDriver"] = $"{driver.driverID}|{driverData}";
                 }
-                else
-                {
-                    // Update in repository
-                    Repository.UpdateDriver(driver);
-                }
 
                 return RedirectToAction("ManagePage");
             }
-
             return View("EditDriver", driver);
         }
 
-        // Delete Driver
         [HttpPost]
-        public ActionResult DeleteDriver(string id)
+        public ActionResult DeleteDriver(string id, bool isFromLocalStorage)
         {
-            Repository.DeleteDriver(id);
+            if (isFromLocalStorage)
+            {
+                TempData["DriverDeleted"] = id;
+            }
             return RedirectToAction("ManagePage");
         }
 
-        // Similar actions for Vehicle (AddVehicle, EditVehicle, DeleteVehicle)
-        //Vehicles
+        // Vehicle CRUD Operations
         [HttpGet]
         public ActionResult AddVehicle()
         {
@@ -360,40 +264,65 @@ namespace HomeworkAssignment1.Controllers
         {
             if (ModelState.IsValid)
             {
-                Repository.AddVehicle(vehicle);
+                // Generate ID if not set
+                if (string.IsNullOrEmpty(vehicle.vehicleID))
+                {
+                    vehicle.vehicleID = Guid.NewGuid().ToString();
+                }
+
+                // Prepare data for localStorage
+                var vehicleData = $"{vehicle.vehicleType}|{vehicle.vehicleRegistration}|{vehicle.vehicleServiceType}";
+
+                // Store in TempData for client-side storage
+                TempData["NewVehicle"] = $"{vehicle.vehicleID}|{vehicleData}";
+                TempData["VehicleAdded"] = true;
+
                 return RedirectToAction("ManagePage");
             }
             return View(vehicle);
         }
 
-        public ActionResult EditVehicle(string id)
+        [HttpGet]
+        public ActionResult EditVehicle(string id, bool fromLocal = false)
         {
             if (string.IsNullOrEmpty(id))
                 return RedirectToAction("ManagePage");
 
-            var vehicle = Repository.GetVehicle(id);
-            if (vehicle == null)
-                return RedirectToAction("ManagePage");
-
-            return View(vehicle);
+            // For localStorage vehicles, we just pass the ID
+            return View(new Vehicle
+            {
+                vehicleID = id,
+                isFromLocalStorage = fromLocal
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult UpdateVehicle(Vehicle vehicle)
+        public ActionResult UpdateVehicle(Vehicle vehicle, bool isFromLocalStorage)
         {
             if (ModelState.IsValid)
             {
-                Repository.UpdateVehicle(vehicle);
+                if (isFromLocalStorage)
+                {
+                    // Prepare data for localStorage update
+                    var vehicleData = $"{vehicle.vehicleType}|{vehicle.vehicleRegistration}|{vehicle.vehicleServiceType}";
+
+                    TempData["VehicleUpdated"] = true;
+                    TempData["UpdatedVehicle"] = $"{vehicle.vehicleID}|{vehicleData}";
+                }
+
                 return RedirectToAction("ManagePage");
             }
             return View("EditVehicle", vehicle);
         }
 
         [HttpPost]
-        public ActionResult DeleteVehicle(string id)
+        public ActionResult DeleteVehicle(string id, bool isFromLocalStorage)
         {
-            Repository.DeleteVehicle(id);
+            if (isFromLocalStorage)
+            {
+                TempData["VehicleDeleted"] = id;
+            }
             return RedirectToAction("ManagePage");
         }
     }

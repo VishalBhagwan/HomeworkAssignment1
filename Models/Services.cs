@@ -9,7 +9,7 @@ namespace HomeworkAssignment1.Models
     {
         public static List<string> serviceTypes = new List<string>
         {
-            "ALS (Advances Life Support)",
+            "ALS (Advanced Life Support)",
             "BLS (Basic Life Support)",
             "Patient Transport",
             "Medical Utility Vehicle",

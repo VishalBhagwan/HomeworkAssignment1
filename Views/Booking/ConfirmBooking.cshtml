@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "Booking Confirmed";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>Booking Confirmed</h2>
@@ -20,20 +21,44 @@
                     <p><strong>Address:</strong> <span id="address"></span></p>
                 </div>
                 <div class="col-md-6">
-                    <h5>Driver Details</h5>
-                    <p><strong>Name:</strong> <span id="driverName"></span></p>
-                    <p><strong>Phone:</strong> <span id="driverPhone"></span></p>
-                    <p><strong>Service:</strong> <span id="driverService"></span></p>
-
-                    <h5 class="mt-3">Vehicle Details</h5>
-                    <p><strong>Type:</strong> <span id="vehicleType"></span></p>
-                    <p><strong>Registration:</strong> <span id="vehicleReg"></span></p>
-                    <p><strong>Service:</strong> <span id="vehicleService"></span></p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5>Your Driver</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img id="driverImage" src="" class="img-thumbnail mb-2"
+                                         style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;"
+                                         alt="Driver Photo">
+                                    <h5 id="driverName"></h5>
+                                    <p><i class="fas fa-phone"></i> <span id="driverPhone"></span></p>
+                                    <p><span class="badge bg-info" id="driverService"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Your Vehicle</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img id="vehicleImage" src="" class="img-thumbnail mb-2"
+                                         style="width: 150px; height: 150px; object-fit: cover;"
+                                         alt="Vehicle Photo">
+                                    <h5 id="vehicleType"></h5>
+                                    <p><i class="fas fa-car"></i> <span id="vehicleReg"></span></p>
+                                    <p><span class="badge bg-info" id="vehicleService"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="card-footer">
             <a href="@Url.Action("HomePage", "Booking")" class="btn btn-primary">Return Home</a>
+            <a href="@Url.Action("RideHistory", "Booking")" class="btn btn-secondary ml-2">View Ride History</a>
         </div>
     </div>
 </div>
@@ -41,36 +66,72 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            const bookingKey = localStorage.getItem('currentBookingKey');
-            if (bookingKey) {
-                //Retrieve all booking data from local storage
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+            const bookingKey = 'booking_' + (bookingId || '');
+
+            if (localStorage.getItem(bookingKey + '_driverData')) {
+                // Get complete driver data
+                const driverData = localStorage.getItem(bookingKey + '_driverData').split('|');
+
+                // Display driver info
+                $('#driverName').text(driverData[0] + ' ' + driverData[1]);
+                $('#driverPhone').text(driverData[2]);
+                $('#driverService').text(driverData[3]);
+
+                // Set driver image
+                const driverImage = localStorage.getItem(bookingKey + '_driverImage') ||
+                                    '/Content/images/default-driver.jpg';
+                $('#driverImage').attr('src', driverImage);
+
+                // Display vehicle info
+                $('#vehicleType').text(localStorage.getItem(bookingKey + '_vehicleType'));
+                $('#vehicleReg').text(localStorage.getItem(bookingKey + '_vehicleReg'));
+                $('#vehicleService').text(localStorage.getItem(bookingKey + '_vehicleService'));
+
+                // Set vehicle image
+                const vehicleImage = localStorage.getItem(bookingKey + '_vehicleImage') ||
+                                    '/Content/images/default-vehicle.jpg';
+                $('#vehicleImage').attr('src', vehicleImage);
+
+                // Display booking details
                 $('#bookingId').text(localStorage.getItem(bookingKey + '_id'));
                 $('#serviceType').text(localStorage.getItem(bookingKey + '_serviceType'));
                 $('#bookingDate').text(new Date(localStorage.getItem(bookingKey + '_date')).toLocaleString());
                 $('#pickUpTime').text(localStorage.getItem(bookingKey + '_pickUpTime'));
                 $('#reason').text(localStorage.getItem(bookingKey + '_reason'));
                 $('#address').text(localStorage.getItem(bookingKey + '_address'));
-                
-                //Driver details
-                $('#driverName').text(
-                    localStorage.getItem(bookingKey + '_driverFirstName') + ' ' + 
-                    localStorage.getItem(bookingKey + '_driverLastName')
-                );
-                $('#driverPhone').text(localStorage.getItem(bookingKey + '_driverPhone'));
-                $('#driverService').text(localStorage.getItem(bookingKey + '_driverService'));
-                
-                //Vehicle details
-                $('#vehicleType').text(localStorage.getItem(bookingKey + '_vehicleType'));
-                $('#vehicleReg').text(localStorage.getItem(bookingKey + '_vehicleReg'));
-                $('#vehicleService').text(localStorage.getItem(bookingKey + '_vehicleService'));
-            }else{
+
+                // Set emergency badge if needed
+                if (localStorage.getItem(bookingKey + '_isEmergency') === 'true') {
+                    $('#bookingDetails').prepend(
+                        '<div class="alert alert-danger mb-3">EMERGENCY BOOKING</div>'
+                    );
+                }
+            } else {
                 $('#bookingDetails').html(`
-                    <div class="alert alert-warning">
-                        No booking information found.
-                        <a href="@Url.Action("SelectService", "Booking")" class="alert-link">Create a new booking</a>
+                    <div class="alert alert-danger">
+                        Error: Could not load booking details.
+                        <a href="@Url.Action("HomePage", "Booking")" class="alert-link">Return home</a>
                     </div>
                 `);
             }
         });
     </script>
 }
+
+<style>
+    .img-thumbnail {
+        border: 3px solid #dee2e6;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .badge {
+        font-size: 0.9em;
+        padding: 5px 10px;
+    }
+</style>

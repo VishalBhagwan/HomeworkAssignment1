@@ -12,5 +12,6 @@ namespace HomeworkAssignment1.Models
         public string vehicleType { get; set; }
         public string vehicleRegistration {  get; set; }
         public string vehicleServiceType { get; set; }
+        public bool isFromLocalStorage { get; set; }
     }
 }
