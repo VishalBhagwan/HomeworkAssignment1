@@ -92,8 +92,9 @@
                 $('#vehicleService').text(localStorage.getItem(bookingKey + '_vehicleService'));
 
                 // Set vehicle image
+                // Set vehicle image
                 const vehicleImage = localStorage.getItem(bookingKey + '_vehicleImage') ||
-                                    '/Content/images/default-vehicle.jpg';
+                    (vehicleData.length > 3 ? vehicleData[3] : '/Content/images/default-vehicle.jpg');
                 $('#vehicleImage').attr('src', vehicleImage);
 
                 // Display booking details

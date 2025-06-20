@@ -1,4 +1,4 @@
-﻿﻿@model HomeworkAssignment1.Models.Vehicle
+﻿@model HomeworkAssignment1.Models.Vehicle
 
 @{
     ViewBag.Title = "Add New Vehicle";
@@ -9,9 +9,19 @@
     <h2>Add New Vehicle</h2>
     <hr />
 
-    @using (Html.BeginForm("AddVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    @using (Html.BeginForm("AddVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken()
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.vehicleImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                <input type="file" id="vehicleImageFile" class="form-control-file" accept="image/*" />
+                @Html.HiddenFor(model => model.vehicleImage)
+                <div id="imagePreview" class="mt-2" style="max-width: 150px;"></div>
+                @Html.ValidationMessageFor(model => model.vehicleImage, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group row">
             @Html.LabelFor(model => model.vehicleType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
@@ -52,3 +62,34 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function () {
+            // Image preview and conversion
+            $('#vehicleImageFile').change(function () {
+                const file = this.files[0];
+                if (file) {
+                    if (file.size > 500000) { // 500KB limit
+                        alert('Image size should be less than 500KB');
+                        $(this).val('');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        // Display preview
+                        $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
+                        // Store base64 in hidden field
+                        $('#vehicleImage').val(e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#imagePreview').html('');
+                    $('#vehicleImage').val('');
+                }
+            });
+        });
+    </script>
+}

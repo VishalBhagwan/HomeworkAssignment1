@@ -9,11 +9,26 @@
     <h2>Edit Vehicle</h2>
     <hr />
 
-    @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data", id = "editVehicleForm" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(model => model.vehicleID)
-        @Html.Hidden("isFromLocalStorage", false)
+        @Html.Hidden("isFromLocalStorage", true)
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.vehicleImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
+            <div class="col-md-10">
+                <input type="file" id="vehicleImageFile" class="form-control-file" accept="image/*" />
+                @Html.HiddenFor(model => model.vehicleImage, new { id = "vehicleImage" })
+                <div id="imagePreview" class="mt-2" style="max-width: 150px;">
+                    @if (!string.IsNullOrEmpty(Model.vehicleImage))
+                    {
+                        <img src="@Model.vehicleImage" class="img-thumbnail" />
+                    }
+                </div>
+                @Html.ValidationMessageFor(model => model.vehicleImage, "", new { @class = "text-danger" })
+            </div>
+        </div>
 
         <div class="form-group row">
             @Html.LabelFor(model => model.vehicleType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
@@ -44,9 +59,64 @@
 
         <div class="form-group row">
             <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
             </div>
         </div>
     }
 </div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(document).ready(function() {
+            // Get vehicle ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const vehicleId = urlParams.get('id');
+
+            // Load vehicle data from localStorage
+            if (vehicleId) {
+                const vehicleData = localStorage.getItem('vehicle_' + vehicleId);
+                if (vehicleData) {
+                    const fields = vehicleData.split('|');
+
+                    // Set form values
+                    $('#vehicleType').val(fields[0]);
+                    $('#vehicleRegistration').val(fields[1]);
+                    $('#vehicleServiceType').val(fields[2]);
+
+                    // Handle image if exists
+                    if (fields.length > 3 && fields[3]) {
+                        $('#vehicleImage').val(fields[3]);
+                        $('#imagePreview').html(`<img src="${fields[3]}" class="img-thumbnail" />`);
+                    }
+                }
+            }
+
+            // Image file change handler
+            $('#vehicleImageFile').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    if (file.size > 500000) { // 500KB limit
+                        alert('Image size should be less than 500KB');
+                        $(this).val('');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Display preview
+                        $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
+                        // Store base64 in hidden field
+                        $('#vehicleImage').val(e.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    </script>
+}

@@ -274,6 +274,11 @@ namespace HomeworkAssignment1.Controllers
                 // Prepare data for localStorage
                 var vehicleData = $"{vehicle.vehicleType}|{vehicle.vehicleRegistration}|{vehicle.vehicleServiceType}";
 
+                if (!string.IsNullOrEmpty(vehicle.vehicleImage))
+                {
+                    vehicleData += $"|{vehicle.vehicleImage}";
+                }
+
                 // Store in TempData for client-side storage
                 TempData["NewVehicle"] = $"{vehicle.vehicleID}|{vehicleData}";
                 TempData["VehicleAdded"] = true;
@@ -307,6 +312,11 @@ namespace HomeworkAssignment1.Controllers
                 {
                     // Prepare data for localStorage update
                     var vehicleData = $"{vehicle.vehicleType}|{vehicle.vehicleRegistration}|{vehicle.vehicleServiceType}";
+
+                    if (!string.IsNullOrEmpty(vehicle.vehicleImage))
+                    {
+                        vehicleData += $"|{vehicle.vehicleImage}";
+                    }
 
                     TempData["VehicleUpdated"] = true;
                     TempData["UpdatedVehicle"] = $"{vehicle.vehicleID}|{vehicleData}";

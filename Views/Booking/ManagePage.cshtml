@@ -215,12 +215,14 @@
                 if (key.startsWith('vehicle_')) {
                     var vehicleId = key.replace('vehicle_', '');
                     var vehicleData = localStorage.getItem(key).split('|');
-                    if (vehicleData.length === 3) {
+                    if (vehicleData.length >= 3) {
+                        var image = vehicleData.length > 3 ? vehicleData[3] : null;
                         addVehicleRow(
                             vehicleId,
                             vehicleData[0],
                             vehicleData[1],
-                            vehicleData[2]
+                            vehicleData[2],
+                            image
                         );
                     }
                 }
@@ -246,9 +248,14 @@
             );
         }
 
-        function addVehicleRow(id, type, registration, service) {
+        function addVehicleRow(id, type, registration, service, image) {
+            const imageHtml = image ?
+                `<img src="${image}" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" />` :
+                '<div class="text-muted">No image</div>';
+
             $('#vehiclesList').append(
                 '<tr>' +
+                '<td>' + imageHtml + '</td>' +
                 '<td>' + type + '</td>' +
                 '<td>' + registration + '</td>' +
                 '<td>' + service + '</td>' +
@@ -259,6 +266,7 @@
                 '</tr>'
             );
         }
+
 
         function searchDrivers() {
             var searchTerm = $('#driverSearch').val().toLowerCase();
