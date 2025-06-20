@@ -151,6 +151,28 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\AA.jpg" />
+    <Content Include="Images\ALS.jpg" />
+    <Content Include="Images\BLS.jpg" />
+    <Content Include="Images\Clock.jpg" />
+    <Content Include="Images\Confirm.jpg" />
+    <Content Include="Images\Driver 1.jpg" />
+    <Content Include="Images\Driver 10.jpg" />
+    <Content Include="Images\Driver 11.jpg" />
+    <Content Include="Images\Driver 2.jpg" />
+    <Content Include="Images\Driver 3.jpg" />
+    <Content Include="Images\Driver 4.jpg" />
+    <Content Include="Images\Driver 5.jpg" />
+    <Content Include="Images\Driver 6.jpg" />
+    <Content Include="Images\Driver 7.jpg" />
+    <Content Include="Images\Driver 8.jpg" />
+    <Content Include="Images\Driver 9.jpg" />
+    <Content Include="Images\EMA.jpg" />
+    <Content Include="Images\HLogo.jpg" />
+    <Content Include="Images\Hospital.jpg" />
+    <Content Include="Images\MUV.jpg" />
+    <Content Include="Images\PT.jpg" />
+    <Content Include="Images\SOS.jpg" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -195,7 +217,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Images\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

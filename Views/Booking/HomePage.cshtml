@@ -2,24 +2,41 @@
     ViewBag.Title = "HomePage";
 }
 
-<div class="jumbotron">
-    <h1>RescueBus</h1>
-    <p class="lead">you're better off not dead</p>
-</div>
+<div class="container-fluid">
+    <!-- First Row - Top Quadrants -->
+    <div class="row">
+        <!-- Top Left Quadrant - Book Ambulance Content -->
+        <div class="col-md-6 p-5">
+            <div class="text-center h-100 d-flex flex-column justify-content-center">
+                <h2>A real O.K. team here to try and save you</h2>
+                <p class="mb-4">If you're still breathing once you've reached the hospital, we've done our job successfully:</p>
+                <a href="@Url.Action("SelectService", "Booking")" class="btn btn-primary btn-lg mx-auto">BOOK AMBULANCE</a>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-md-12 text-center">
-        <h2>A real O.K. team here to try and save you</h2>
-        <p>If you're still breathing once you've reached the hospital, we've done our job successfully!</p>
-        <a href="@Url.Action("SelectService", "Booking")" class="btn btn-primary">Book Ambulance</a>
+        <!-- Top Right Quadrant - Image -->
+        <div class="col-md-6 p-0">
+            <img src="/Images/Hospital.jpg" alt="Ambulance" class="img-fluid w-100 h-100" style="object-fit: cover;">
+        </div>
     </div>
-</div>
 
-<div class="row mt-5">
-    <div class="col-md-12 text-center">
-        <h3>EMERGENCY?</h3>
-        <p>Only hit the button for <strong>real</strong> emergencies mind you...</p>
-        <button id="sosButton" class="btn btn-danger btn-lg">S.O.S</button>
+    <!-- Second Row - Bottom Quadrants -->
+    <div class="row">
+        <!-- Bottom Left Quadrant - SOS Button as Image -->
+        <div class="col-md-6 p-0">
+            <button id="sosButton" class="btn p-0 border-0 w-100 h-100">
+                <img src="/Images/SOS.jpg" alt="Emergency SOS" class="img-fluid w-100 h-100" style="object-fit: cover;">
+            </button>
+        </div>
+
+        <!-- Bottom Right Quadrant - Text Content -->
+        <div class="col-md-6 p-5">
+            <div class="h-100 d-flex flex-column justify-content-center">
+                <h3>EMERGENCY?</h3>
+                <p>Only hit the button for <strong>real</strong> emergencies mind you.</p>
+                <p class="text-muted small">Stepping on a thumbtack at 3 cm while doing arts and crafts is not an emergency.</p>
+            </div>
+        </div>
     </div>
 </div>
 
