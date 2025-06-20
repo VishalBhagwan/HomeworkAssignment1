@@ -37,60 +37,59 @@
                         <text>'@service',</text>
                     }
                 ];
-                
 
-                // Get drivers from localStorage
-                const localDrivers = [];
+                // Get available drivers and vehicles with images
+                const availableDrivers = [];
+                const availableVehicles = [];
+
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
-                    if (key.startsWith('driver_') && !key.includes('|')) {
+
+                    // Check for drivers (including those with images)
+                    if (key.startsWith('driver_')) {
                         const driverData = localStorage.getItem(key).split('|');
-                        if (driverData.length === 4) {
-                            localDrivers.push({
+                        if (driverData.length >= 4) {
+                            const driver = {
                                 driverID: key.replace('driver_', ''),
                                 firstName: driverData[0],
                                 lastName: driverData[1],
                                 phone: driverData[2],
-                                serviceType: driverData[3]
-                            });
+                                serviceType: driverData[3],
+                                image: driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg'
+                            };
+                            availableDrivers.push(driver);
                         }
                     }
-                }
 
-                // Get vehicles from localStorage
-                const localVehicles = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key.startsWith('vehicle_') && !key.includes('|')) {
+                    // Check for vehicles (including those with images)
+                    if (key.startsWith('vehicle_')) {
                         const vehicleData = localStorage.getItem(key).split('|');
-                        if (vehicleData.length === 3) {
-                            localVehicles.push({
+                        if (vehicleData.length >= 3) {
+                            const vehicle = {
                                 vehicleID: key.replace('vehicle_', ''),
                                 vehicleType: vehicleData[0],
                                 registration: vehicleData[1],
-                                serviceType: vehicleData[2]
-                            });
+                                serviceType: vehicleData[2],
+                                image: vehicleData.length > 3 ? vehicleData[3] : '/Content/images/default-vehicle.jpg'
+                            };
+                            availableVehicles.push(vehicle);
                         }
                     }
                 }
 
-                // Combine repository and localStorage data
-                const allDrivers = [ ...localDrivers];
-                const allVehicles = [ ...localVehicles];
-
                 // Try each service type until we find one with available drivers and vehicles
                 let selectedService = null;
-                let availableDrivers = [];
-                let availableVehicles = [];
+                let serviceDrivers = [];
+                let serviceVehicles = [];
 
                 // Shuffle service types to randomize selection
                 const shuffledServices = [...serviceTypes].sort(() => 0.5 - Math.random());
 
                 for (const service of shuffledServices) {
-                    availableDrivers = allDrivers.filter(d => d.serviceType === service);
-                    availableVehicles = allVehicles.filter(v => v.serviceType === service);
+                    serviceDrivers = availableDrivers.filter(d => d.serviceType === service);
+                    serviceVehicles = availableVehicles.filter(v => v.serviceType === service);
 
-                    if (availableDrivers.length > 0 && availableVehicles.length > 0) {
+                    if (serviceDrivers.length > 0 && serviceVehicles.length > 0) {
                         selectedService = service;
                         break;
                     }
@@ -102,8 +101,8 @@
                 }
 
                 // Select random driver and vehicle
-                const randomDriver = availableDrivers[Math.floor(Math.random() * availableDrivers.length)];
-                const randomVehicle = availableVehicles[Math.floor(Math.random() * availableVehicles.length)];
+                const randomDriver = serviceDrivers[Math.floor(Math.random() * serviceDrivers.length)];
+                const randomVehicle = serviceVehicles[Math.floor(Math.random() * serviceVehicles.length)];
 
                 // Create booking key
                 const bookingKey = 'emergency_' + Date.now();
@@ -121,16 +120,16 @@
                 localStorage.setItem(bookingKey + '_driverId', randomDriver.driverID);
                 localStorage.setItem(bookingKey + '_vehicleId', randomVehicle.vehicleID);
 
-                // Store driver details
-                localStorage.setItem(bookingKey + '_driverFirstName', randomDriver.firstName);
-                localStorage.setItem(bookingKey + '_driverLastName', randomDriver.lastName);
-                localStorage.setItem(bookingKey + '_driverPhone', randomDriver.phone);
-                localStorage.setItem(bookingKey + '_driverService', randomDriver.serviceType);
+                // Store complete driver data including image
+                localStorage.setItem(bookingKey + '_driverData',
+                    `${randomDriver.firstName}|${randomDriver.lastName}|${randomDriver.phone}|${randomDriver.serviceType}|${randomDriver.image}`);
+                localStorage.setItem(bookingKey + '_driverImage', randomDriver.image);
 
-                // Store vehicle details
+                // Store complete vehicle data including image
                 localStorage.setItem(bookingKey + '_vehicleType', randomVehicle.vehicleType);
                 localStorage.setItem(bookingKey + '_vehicleReg', randomVehicle.registration);
                 localStorage.setItem(bookingKey + '_vehicleService', randomVehicle.serviceType);
+                localStorage.setItem(bookingKey + '_vehicleImage', randomVehicle.image);
 
                 // Add to bookings list
                 let bookings = localStorage.getItem('bookingKeys') || '';
@@ -141,11 +140,8 @@
                 // Set as current booking
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                // Redirect to emergency booking action
-                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?serviceType=' +
-                    encodeURIComponent(selectedService) +
-                    '&driverId=' + encodeURIComponent(randomDriver.driverID) +
-                    '&vehicleId=' + encodeURIComponent(randomVehicle.vehicleID);
+                // Redirect to confirmation page with full key
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
 
             function generateGUID() {

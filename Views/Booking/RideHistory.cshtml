@@ -27,12 +27,17 @@
 
                 // Get all stored booking data
                 const date = new Date(localStorage.getItem(key + '_date'));
-                const isEmergency = localStorage.getItem(key + '_isEmergency') === 'true';
-                const driverData = localStorage.getItem('driver_' + localStorage.getItem(key + '_driverId'))?.split('|') || [];
+                const isEmergency = key.startsWith('emergency_') || localStorage.getItem(key + '_isEmergency') === 'true';
+
+                // Get driver data
+                const driverData = localStorage.getItem(key + '_driverData')?.split('|') ||
+                                 localStorage.getItem('driver_' + localStorage.getItem(key + '_driverId'))?.split('|') || [];
                 const driverFirstName = driverData[0] || 'Unknown';
                 const driverLastName = driverData[1] || 'Driver';
+
+                // Get vehicle data
                 const vehicleData = localStorage.getItem('vehicle_' + localStorage.getItem(key + '_vehicleId'))?.split('|') || [];
-                const vehicleType = vehicleData[0] || 'Unknown Vehicle';
+                const vehicleType = vehicleData[0] || localStorage.getItem(key + '_vehicleType') || 'Unknown Vehicle';
 
                 html += `
                     <div class="card mb-3 ${isEmergency ? 'border-danger' : ''}">
@@ -60,7 +65,7 @@
                 // Store the current booking key in localStorage for the confirmation page
                 localStorage.setItem('currentBookingKey', bookingKey);
                 // Redirect to confirmation page with the booking ID
-                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey.replace('booking_', '');
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
         });
     </script>

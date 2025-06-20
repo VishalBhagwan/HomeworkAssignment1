@@ -174,7 +174,7 @@
                 localStorage.setItem('currentBookingKey', bookingKey);
 
                 // Redirect to confirmation with booking ID
-                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey.replace('booking_', '');
+                window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
 
             function generateGUID() {

@@ -68,11 +68,13 @@
         $(document).ready(function () {
             const urlParams = new URLSearchParams(window.location.search);
             const bookingId = urlParams.get('bookingId');
-            const bookingKey = 'booking_' + (bookingId || '');
 
-            if (localStorage.getItem(bookingKey + '_driverData')) {
+            // Use the exact key passed in the URL (either emergency_ or booking_)
+            const bookingKey = bookingId;
+
+            if (bookingKey && localStorage.getItem(bookingKey + '_serviceType')) {
                 // Get complete driver data
-                const driverData = localStorage.getItem(bookingKey + '_driverData').split('|');
+                const driverData = localStorage.getItem(bookingKey + '_driverData')?.split('|') || [];
 
                 // Display driver info
                 $('#driverName').text(driverData[0] + ' ' + driverData[1]);
@@ -81,7 +83,7 @@
 
                 // Set driver image
                 const driverImage = localStorage.getItem(bookingKey + '_driverImage') ||
-                                    '/Content/images/default-driver.jpg';
+                                   (driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg');
                 $('#driverImage').attr('src', driverImage);
 
                 // Display vehicle info
@@ -103,7 +105,7 @@
                 $('#address').text(localStorage.getItem(bookingKey + '_address'));
 
                 // Set emergency badge if needed
-                if (localStorage.getItem(bookingKey + '_isEmergency') === 'true') {
+                if (bookingKey.startsWith('emergency_') || localStorage.getItem(bookingKey + '_isEmergency') === 'true') {
                     $('#bookingDetails').prepend(
                         '<div class="alert alert-danger mb-3">EMERGENCY BOOKING</div>'
                     );
