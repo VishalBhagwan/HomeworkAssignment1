@@ -1,6 +1,20 @@
 ﻿@{
     ViewBag.Title = "Select Service";
+
+    var serviceDescriptions = new Dictionary<string, string>
+    {
+        { "ALS (Advanced Life Support)", "Standard medical transport with basic life support equipment and EMTs" },
+        { "BLS (Basic Life Support)", "Ambulance staffed with paramedics and advanced medical equipment" },
+        { "Patient Transport", "Specialized ambulance for newborns with incubator and neonatal team" },
+        { "Medical Utility Vehicle", "Wider vehicle with reinforced stretchers for larger patients" },
+        { "Event Medical Ambulance", "Secure transport with trained mental health professionals" },
+        { "Air Ambulance", "dhssudh"}
+    };
 }
+
+<head>
+    <link href="~/Content/Booking.css" rel="stylesheet" />
+</head>
 
 <h2>Select a service...</h2>
 <p>Lorem ipsum dolor sit amet consectetur adipiscing elit semper dalar elementum tempus hac tellus libero accumsan.</p>
@@ -12,7 +26,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">@service</h5>
-                    <p class="card-text">Description of @service.</p>
+                    <p class="card-text">@serviceDescriptions[service]</p>
                     <a href="@Url.Action("BookingForm", "Booking", new { serviceType = service })" class="btn btn-primary">Select</a>
                 </div>
             </div>

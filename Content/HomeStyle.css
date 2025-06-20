@@ -42,10 +42,25 @@
 }
 
 .top-left-quadrant {
-    background-color: #e8f0fe; /* Replace with your desired color */
+    background-color: #f5f7fa; /* Replace with your desired color */
 }
 
 /* Bottom Right Quadrant */
 .bottom-right-quadrant {
-    background-color: #ffe4d1; /* Replace with your desired color */
+    background-color: #f5f7fa; /* Replace with your desired color */
+}
+
+.btn-primary {
+    background-color: #3498db; /* Blue */
+    border-color: #3498db;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    margin: 0 auto;
+    display: block;
+    width: fit-content;
+}
+
+body {
+    background-color: #f5f7fa;
+    min-height: 100vh;
 }
