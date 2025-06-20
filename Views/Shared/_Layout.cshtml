@@ -3,32 +3,42 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - RescueYou</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/HomeStyle.css" rel="stylesheet" />
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
         <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            <!-- Logo with text -->
+            <a href="@Url.Action("Index", "Home")" class="navbar-brand">
+                <img src="~/Images/HLogo.jpg" alt="RescueYou Logo" class="logo-img">
+                <span>RescueYou</span>
+            </a>
+
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "HomePage", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Ride History", "RideHistory", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Manage", "ManagePage", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
+
+            <!-- Navigation links aligned to the right -->
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <!-- ms-auto pushes items to the right -->
+                    <li class="nav-item">@Html.ActionLink("Home", "HomePage", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Ride History", "RideHistory", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Manage", "ManagePage", "Booking", new { area = "" }, new { @class = "nav-link" })</li>
                 </ul>
             </div>
         </div>
     </nav>
+
     <div class="container body-content">
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - RescueYou</p>
         </footer>
     </div>
 

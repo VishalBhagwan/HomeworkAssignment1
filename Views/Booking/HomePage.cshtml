@@ -1,16 +1,19 @@
 ﻿@{
     ViewBag.Title = "HomePage";
 }
+<head>
+    <link href="~/Content/HomeStyle.css" rel="stylesheet" />
+</head>
 
 <div class="container-fluid">
     <!-- First Row - Top Quadrants -->
     <div class="row">
         <!-- Top Left Quadrant - Book Ambulance Content -->
-        <div class="col-md-6 p-5">
+        <div class="col-md-6 p-5 top-left-quadrant">
             <div class="text-center h-100 d-flex flex-column justify-content-center">
-                <h2>A real O.K. team here to try and save you</h2>
-                <p class="mb-4">If you're still breathing once you've reached the hospital, we've done our job successfully:</p>
-                <a href="@Url.Action("SelectService", "Booking")" class="btn btn-primary btn-lg mx-auto">BOOK AMBULANCE</a>
+                <h1 class="display-4 mb-4">A real O.K. team here to try and save you</h1>
+                <p class="h3 mb-5">If you're still breathing once you've reached the hospital, we've done our job successfully:</p>
+                <a href="@Url.Action("SelectService", "Booking")" class="btn btn-primary btn-lg mx-auto" style="font-size: 2rem; padding: 1rem 2rem;">BOOK AMBULANCE</a>
             </div>
         </div>
 
@@ -30,11 +33,11 @@
         </div>
 
         <!-- Bottom Right Quadrant - Text Content -->
-        <div class="col-md-6 p-5">
+        <div class="col-md-6 p-5 bottom-right-quadrant">
             <div class="h-100 d-flex flex-column justify-content-center">
-                <h3>EMERGENCY?</h3>
-                <p>Only hit the button for <strong>real</strong> emergencies mind you.</p>
-                <p class="text-muted small">Stepping on a thumbtack at 3 cm while doing arts and crafts is not an emergency.</p>
+                <h1 class="display-4 mb-4">EMERGENCY?</h1>
+                <p class="h3">Only hit the button for <strong>real</strong> emergencies mind you.</p>
+                <p class="h4 text-muted mt-4">Stepping on a thumbtack at 3 cm while doing arts and crafts is not an emergency.</p>
             </div>
         </div>
     </div>
