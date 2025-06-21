@@ -1,0 +1,57 @@
+﻿/* Ride History Styles */
+
+body {
+    background-color: #e6e6e6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin: 30px 0;
+    color: #4a4a4a;
+}
+
+#rideHistory {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+    .card h5 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #3c3c8d;
+        margin-bottom: 10px;
+    }
+
+    .card.border-danger {
+        border-color: #e53935;
+    }
+
+        .card.border-danger h5 {
+            color: #e53935;
+            font-weight: bold;
+        }
+
+    .card p {
+        margin: 5px 0;
+        color: #333;
+    }
+
+.view-booking {
+    margin-top: 10px;
+}
+
+.ride-icon {
+    width: 80px;
+    height: auto;
+    mix-blend-mode: multiply;
+}

@@ -152,6 +152,7 @@
     <Content Include="Content\Confirm.css" />
     <Content Include="Content\HomeStyle.css" />
     <Content Include="Content\Manage.css" />
+    <Content Include="Content\RideHistory.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />

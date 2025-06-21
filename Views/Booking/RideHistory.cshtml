@@ -2,56 +2,61 @@
 
 @{
     ViewBag.Title = "Ride History";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // adjust if necessary
 }
 
-<h2>Ride History</h2>
+<head>
+    <link rel="stylesheet" href="~/css/RideHistory.css" />
+</head>
 
+<!-- Page Header -->
+<div class="ride-history-header text-center">
+    <img src="~/Images/Clock.jpg" alt="Ride History Icon" class="ride-icon" />
+    <h2>Ride History</h2>
+</div>
+
+
+<!-- Container for bookings -->
 <div id="rideHistory"></div>
+
 
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Get list of booking keys
             const bookingKeys = localStorage.getItem('bookingKeys');
             if (!bookingKeys) {
                 $('#rideHistory').html('<div class="alert alert-info">No bookings found</div>');
                 return;
             }
 
-            // Generate HTML for each booking
             let html = '';
             const keys = bookingKeys.split(',');
 
             keys.forEach(key => {
                 if (!key) return;
 
-                // Get all stored booking data
                 const date = new Date(localStorage.getItem(key + '_date'));
                 const isEmergency = key.startsWith('emergency_') || localStorage.getItem(key + '_isEmergency') === 'true';
 
-                // Get driver data
                 const driverData = localStorage.getItem(key + '_driverData')?.split('|') ||
-                                 localStorage.getItem('driver_' + localStorage.getItem(key + '_driverId'))?.split('|') || [];
+                                   localStorage.getItem('driver_' + localStorage.getItem(key + '_driverId'))?.split('|') || [];
                 const driverFirstName = driverData[0] || 'Unknown';
                 const driverLastName = driverData[1] || 'Driver';
 
-                // Get vehicle data
                 const vehicleData = localStorage.getItem('vehicle_' + localStorage.getItem(key + '_vehicleId'))?.split('|') || [];
                 const vehicleType = vehicleData[0] || localStorage.getItem(key + '_vehicleType') || 'Unknown Vehicle';
 
                 html += `
                     <div class="card mb-3 ${isEmergency ? 'border-danger' : ''}">
                         <div class="card-body">
-                            <h5>${date.toLocaleDateString()} ${isEmergency ? ' - S.O.S' : ''}</h5>
+                            <h5>${date.toLocaleDateString()}${isEmergency ? ' - S.O.S.' : ''}</h5>
                             <p><strong>Booking ID:</strong> ${localStorage.getItem(key + '_id')}</p>
-                            <p><strong>Service Type:</strong> ${localStorage.getItem(key + '_serviceType')}</p>
+                            
                             <p><strong>Driver:</strong> ${driverFirstName} ${driverLastName}</p>
                             <p><strong>Ambulance:</strong> ${vehicleType}</p>
                             <p><strong>Pick-Up Address:</strong> ${localStorage.getItem(key + '_address')}</p>
-                            <p><strong>Pick-Up Time:</strong> ${localStorage.getItem(key + '_pickUpTime')}</p>
-                            <button class="btn btn-info view-booking" data-key="${key}">
-                                View Details
-                            </button>
+                            
+                            <button class="btn btn-info view-booking" data-key="${key}">View Details</button>
                         </div>
                     </div>
                 `;
@@ -59,12 +64,9 @@
 
             $('#rideHistory').html(html);
 
-            // Handle View Details button click
-            $(document).on('click', '.view-booking', function() {
+            $(document).on('click', '.view-booking', function () {
                 const bookingKey = $(this).data('key');
-                // Store the current booking key in localStorage for the confirmation page
                 localStorage.setItem('currentBookingKey', bookingKey);
-                // Redirect to confirmation page with the booking ID
                 window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
         });
