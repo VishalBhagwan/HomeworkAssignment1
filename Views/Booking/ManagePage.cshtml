@@ -13,6 +13,8 @@
         <img src="~/Images/HLogo.jpg" alt="Management Icon" class="title-icon mb-2" />
         <h2>Driver and Vehicle Management</h2>
     </div>
+
+    <!-- TempData passes the temporary data from the controller after adds, updates or deletes data to JavaScript to be stored in localStorage-->
     @if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
     {
         <script>
@@ -73,93 +75,95 @@
         </script>
     }
 
-<div class="management-card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">Drivers</h3>
-        <a href="@Url.Action("AddDriver", "Booking")" class="btn btn-primary">Add Driver</a>
-    </div>
-
-
-    <div class="search-filter-container d-flex gap-3 mb-4 flex-wrap">
-        <div class="input-group" style="width: 300px;">
-            <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
-            <button class="btn btn-outline-secondary" id="searchDriversBtn">Search</button>
+    <div class="management-card">
+        <!-- Opens up the AddDriver view-->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Drivers</h3>
+            <a href="@Url.Action("AddDriver", "Booking")" class="btn btn-primary">Add Driver</a>
         </div>
 
-        <div class="input-group" style="width: 300px;">
-            <select class="form-control" id="serviceTypeFilter">
-                <option value="">All Service Types</option>
-                @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
-                {
-                    <option value="@service">@service</option>
-                }
-            </select>
+        <!-- Filters the data-->
+        <div class="search-filter-container d-flex gap-3 mb-4 flex-wrap">
+            <div class="input-group" style="width: 300px;">
+                <input type="text" id="driverSearch" class="form-control" placeholder="Search by name">
+                <button class="btn btn-outline-secondary" id="searchDriversBtn">Search</button>
+            </div>
+
+            <div class="input-group" style="width: 300px;">
+                <select class="form-control" id="serviceTypeFilter">
+                    <option value="">All Service Types</option>
+                    @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
+                    {
+                        <option value="@service">@service</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Table where the driver data is stored-->
+        <div class="card-row header bg-light rounded-top">
+            <div>IMAGE</div>
+            <div>FIRST NAME</div>
+            <div>LAST NAME</div>
+            <div>PHONE NUMBER</div>
+            <div>SERVICE</div>
+            <div class="text-center">Controls</div>
+        </div>
+
+        <div id="driversList">
+            <!-- Populated by JavaScript -->
         </div>
     </div>
 
+    <div class="management-card">
+        <!-- Opens up the AddVehicle view-->
+        <div class="card-header">
+            <h3>Vehicles</h3>
+            <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
+        </div>
 
-    <div class="card-row header bg-light rounded-top">
-        <div>IMAGE</div>
-        <div>FIRST NAME</div>
-        <div>LAST NAME</div>
-        <div>PHONE NUMBER</div>
-        <div>SERVICE</div>
-        <div class="text-center">Controls</div>
+        <!-- Table where the vehicle data is stored-->
+        <div class="card-row header bg-light rounded-top">
+            <div>IMAGE</div>
+            <div>TYPE</div>
+            <div>REGISTRATION</div>
+            <div>SERVICE</div>
+            <div class="text-center">CONTROLS</div>
+        </div>
+
+
+        <div id="vehiclesList">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="text-end mt-3">
+            <button id="exportVehiclesBtn" class="btn btn-success">Export Vehicles</button>
+        </div>
     </div>
-
-    <div id="driversList">
-        <!-- Will be populated by JavaScript -->
-    </div>
-</div>
-
-<div class="management-card">
-    <div class="card-header">
-        <h3>Vehicles</h3>
-        <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
-    </div>
-
-    <div class="card-row header bg-light rounded-top">
-        <div>IMAGE</div>
-        <div>TYPE</div>
-        <div>REGISTRATION</div>
-        <div>SERVICE</div>
-        <div class="text-center">CONTROLS</div>
-    </div>
-
-
-    <div id="vehiclesList">
-        <!-- Will be populated by JavaScript -->
-    </div>
-
-    <div class="text-end mt-3">
-        <button id="exportVehiclesBtn" class="btn btn-success">Export Vehicles</button>
-    </div>
-</div>
 </div>
 
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Initialize the page
+            //Populates the tables
             loadDrivers();
             loadVehicles();
 
-            // Search functionality for drivers
+            //Search functionality for drivers
             $('#searchDriversBtn').click(searchDrivers);
-
-            // Service type filter for drivers
             
-
-            // Filter when service type dropdown changes
+            //Filter by service type when specific service type is selected
             $('#serviceTypeFilter').change(filterByServiceType);
 
-            // Driver button handlers
+            //Driver button handlers
+            //Opens the EditDriver page, and uses the driver ID to know what data to load
             $(document).on('click', '.edit-driver', function(e) {
                 e.preventDefault();
                 var driverId = $(this).data('id');
                 window.location.href = '@Url.Action("EditDriver")?id=' + driverId + '&fromLocal=true';
             });
 
+            //Deletes the driver, and uses the driver ID to know what data to delete
             $(document).on('click', '.delete-driver', function() {
                 var driverId = $(this).data('id');
 
@@ -169,7 +173,7 @@
                 }
             });
 
-            // Vehicle button handlers
+            //Vehicle button handlers
             $(document).on('click', '.edit-vehicle', function(e) {
                 e.preventDefault();
                 var vehicleId = $(this).data('id');
@@ -189,7 +193,7 @@
         function loadDrivers() {
             $('#driversList').empty();
 
-            // Load from localStorage
+            //Loops through localStorage and populates the driver list
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
                 if (key.startsWith('driver_')) {
@@ -197,6 +201,7 @@
                     var driverData = localStorage.getItem(key).split('|');
                     if (driverData.length >= 4) {
                         var image = driverData.length > 4 ? driverData[4] : null;
+                        //Adds the driver to the table
                         addDriverRow(
                             driverId,
                             driverData[0],
@@ -213,7 +218,7 @@
         function loadVehicles() {
             $('#vehiclesList').empty();
 
-            // Load from localStorage
+            //Loops through localStorage and populates the driver list
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
                 if (key.startsWith('vehicle_')) {
@@ -221,6 +226,7 @@
                     var vehicleData = localStorage.getItem(key).split('|');
                     if (vehicleData.length >= 3) {
                         var image = vehicleData.length > 3 ? vehicleData[3] : null;
+                        //Adds the vehicle to the table
                         addVehicleRow(
                             vehicleId,
                             vehicleData[0],
@@ -233,48 +239,49 @@
             }
         }
 
+        //Adds drivers to the table list for each row
         function addDriverRow(id, firstName, lastName, phone, service, image) {
             const imageHtml = image
                 ? `<img src="${image}" alt="Driver Image" />`
                 : '<div class="text-muted">No image</div>';
 
             $('#driversList').append(`
-        <div class="card-row" data-service="${service}">
-            <div>${imageHtml}</div>
-            <div>${firstName}</div>
-            <div>${lastName}</div>
-            <div>${phone}</div>
-            <div>${service}</div>
-            <div class="text-center">
-                <button class="btn edit-driver" data-id="${id}">Edit</button>
-                <button class="btn delete-driver" data-id="${id}">Delete</button>
-            </div>
-        </div>
-    `);
+                <div class="card-row" data-service="${service}">
+                    <div>${imageHtml}</div>
+                    <div>${firstName}</div>
+                    <div>${lastName}</div>
+                    <div>${phone}</div>
+                    <div>${service}</div>
+                    <div class="text-center">
+                        <button class="btn edit-driver" data-id="${id}">Edit</button>
+                        <button class="btn delete-driver" data-id="${id}">Delete</button>
+                    </div>
+                </div>
+            `);
         }
 
-
+        //Adds vehicles to the table list for each row
         function addVehicleRow(id, type, registration, service, image) {
             const imageHtml = image
                 ? `<img src="${image}" alt="Vehicle Image" class="vehicle-thumbnail" />`
                 : '<div class="text-muted">No image</div>';
 
             $('#vehiclesList').append(`
-        <div class="card-row" data-service="${service}">
-            <div>${imageHtml}</div>
-            <div>${type}</div>
-            <div>${registration}</div>
-            <div>${service}</div>
-            <div class="text-center">
-                <button class="btn edit-vehicle" data-id="${id}">Edit</button>
-                <button class="btn delete-vehicle" data-id="${id}">Delete</button>
+                <div class="card-row" data-service="${service}">
+                <div>${imageHtml}</div>
+                <div>${type}</div>
+                <div>${registration}</div>
+                <div>${service}</div>
+                <div class="text-center">
+                    <button class="btn edit-vehicle" data-id="${id}">Edit</button>
+                    <button class="btn delete-vehicle" data-id="${id}">Delete</button>
+                </div>
             </div>
-        </div>
-    `);
+        `);
         }
 
 
-        //Select the correct columns by index
+        //Filters through driver full name and display any matches
         function searchDrivers() {
             var searchTerm = $('#driverSearch').val().toLowerCase();
             $('#driversList .card-row').each(function () {
@@ -285,7 +292,7 @@
             });
         }
 
-
+        //Only show drivers which match the service type
         function filterByServiceType() {
             var selectedService = $('#serviceTypeFilter').val();
             if (!selectedService) {
@@ -299,12 +306,16 @@
             });
         }
 
+        //Export to a text file
         $('#exportVehiclesBtn').click(function () {
+            //Defines the columns
             let content = 'ID\tType\tRegistration\tService\n';
 
+            //Loops through local storage
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
                 if (key.startsWith('vehicle_')) {
+                    //Removes the vehicle_ so that it can get the data by itself
                     let vehicleId = key.replace('vehicle_', '');
                     let vehicleData = localStorage.getItem(key).split('|');
                     if (vehicleData.length >= 3) {
@@ -314,9 +325,10 @@
                 }
             }
 
-            // Create a Blob and trigger download
+            //Uses Blob to store like a file in memory
             const blob = new Blob([content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
+            //Creates a download link
             const a = document.createElement('a');
             a.href = url;
             a.download = 'vehicles.txt';
