@@ -8,6 +8,7 @@
 
 <form id="bookingForm">
     <input type="hidden" id="serviceType" value="@serviceType" />
+    <!-- Form inputs for full name and phone number of client. Both in the same row-->
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
@@ -23,6 +24,7 @@
         </div>
     </div>
 
+    <!-- Form inputs for pick-up time and reason. Both in the same row-->
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
@@ -38,6 +40,7 @@
         </div>
     </div>
 
+    <!-- Form inputs for driver name and vehicle name. Both in the same row-->
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
@@ -57,6 +60,7 @@
         </div>
     </div>
 
+    <!-- Form inputs for address-->
     <div class="form-group">
         <label for="pickUpAddress">Pick-Up Address</label>
         <textarea class="form-control" id="pickUpAddress" rows="3"></textarea>
@@ -68,16 +72,18 @@
 @section scripts {
     <script>
         $(document).ready(function () {
+            //Retrieve service type
             const serviceType = $('#serviceType').val();
 
-            // Load data from localStorage
+            //Load data from localStorage
             const drivers = [];
             const vehicles = [];
 
+            //Filters the data in local storage to match the driver and vehicle of the same service type selected
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
 
-                // Handle drivers (including those with images)
+                //Drivers
                 if (key.startsWith('driver_')) {
                     const driverData = localStorage.getItem(key).split('|');
                     if (driverData.length >= 4 && driverData[3] === serviceType) {
@@ -92,7 +98,7 @@
                     }
                 }
 
-                // Handle vehicles
+                //Vehicles
                 if (key.startsWith('vehicle_')) {
                     const vehicleData = localStorage.getItem(key).split('|');
                     if (vehicleData.length >= 3 && vehicleData[2] === serviceType) {
@@ -107,7 +113,7 @@
                 }
             }
 
-            // Populate dropdowns
+            //Populate dropdowns
             const $driverSelect = $('#driver');
             drivers.forEach(driver => {
                 $driverSelect.append(
@@ -126,11 +132,11 @@
                 );
             });
 
-            // Form submission
+            //Form submission
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
-                // Get selected driver and vehicle
+                //Get selected driver and vehicle
                 const selectedDriverId = $('#driver').val();
                 const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
                 const selectedVehicleId = $('#vehicle').val();
@@ -141,10 +147,10 @@
                     return;
                 }
 
-                // Create booking key
+                //Create booking key
                 const bookingKey = 'booking_' + Date.now();
 
-                // Store booking data
+                //Store booking data
                 localStorage.setItem(bookingKey + '_serviceType', serviceType);
                 localStorage.setItem(bookingKey + '_id', generateGUID());
                 localStorage.setItem(bookingKey + '_fullName', $('#fullName').val());
@@ -157,11 +163,11 @@
                 localStorage.setItem(bookingKey + '_driverId', selectedDriverId);
                 localStorage.setItem(bookingKey + '_vehicleId', selectedVehicleId);
 
-                // Store complete driver data including image
+                //Store driver details which was retrieved from localStorage
                 localStorage.setItem(bookingKey + '_driverData', localStorage.getItem('driver_' + selectedDriverId));
                 localStorage.setItem(bookingKey + '_driverImage', selectedDriver.image);
 
-                // Store vehicle details
+                //Store vehicle details which was retrieved from localStorage
                 localStorage.setItem(bookingKey + '_vehicleType', selectedVehicle.vehicleType);
                 localStorage.setItem(bookingKey + '_vehicleReg', selectedVehicle.registration);
                 localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.serviceType);
@@ -173,10 +179,11 @@
                 localStorage.setItem('bookingKeys', bookings + bookingKey);
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                // Redirect to confirmation with booking ID
+                //Redirects to confirmation with booking ID
                 window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
 
+            //Generates a unique ID for each booking
             function generateGUID() {
                 return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                     const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
