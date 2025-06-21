@@ -85,8 +85,8 @@ namespace HomeworkAssignment1.Controllers
             var matchingVehicles = new List<Vehicle>();
 
             // Check if we have matching drivers/vehicles in the repository
-            matchingDrivers = Repository.GetDrivers().Where(d => d.driverServiceType == serviceType).ToList();
-            matchingVehicles = Repository.GetVehicles().Where(v => v.vehicleServiceType == serviceType).ToList();
+            //matchingDrivers = Repository.GetDrivers().Where(d => d.driverServiceType == serviceType).ToList();
+            //matchingVehicles = Repository.GetVehicles().Where(v => v.vehicleServiceType == serviceType).ToList();
 
             // If no matches in repository, create emergency entries
             if (matchingDrivers.Count == 0)
