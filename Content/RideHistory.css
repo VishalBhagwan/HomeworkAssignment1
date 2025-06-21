@@ -1,6 +1,4 @@
-﻿/* Ride History Styles */
-
-body {
+﻿body {
     background-color: #e6e6e6;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -25,26 +23,26 @@ h2 {
     border: 1px solid #ddd;
 }
 
-    .card h5 {
-        font-size: 18px;
-        font-weight: 600;
-        color: #3c3c8d;
-        margin-bottom: 10px;
-    }
+.card h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #3c3c8d;
+    margin-bottom: 10px;
+}
 
-    .card.border-danger {
-        border-color: #e53935;
-    }
+.card.border-danger {
+    border-color: #e53935;
+}
 
-        .card.border-danger h5 {
-            color: #e53935;
-            font-weight: bold;
-        }
+.card.border-danger h5 {
+    color: #e53935;
+    font-weight: bold;
+}
 
-    .card p {
-        margin: 5px 0;
-        color: #333;
-    }
+.card p {
+    margin: 5px 0;
+    color: #333;
+}
 
 .view-booking {
     margin-top: 10px;
