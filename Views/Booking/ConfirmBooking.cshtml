@@ -3,63 +3,50 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Booking Confirmed</h2>
+<head>
+    <link href="~/Content/Confirm.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
 
 <div id="bookingDetails" class="container">
+    <img src="~/Images/Confirm.jpg" alt="Management Icon" class="title-icon mb-2" />
+    <h2><i class="fas fa-check-circle" style="color: #5a4ca7;"></i> Booking Confirmed</h2>
+
+    <!-- Booking Details Card -->
     <div class="card">
-        <div class="card-header">
-            <h5>Booking Details</h5>
-        </div>
+        <h5 class="card-header">Booking Details</h5>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
-                    <p><strong>Date Booked:</strong> <span id="bookingDate"></span></p>
-                    <p><strong>Service Type:</strong> <span id="serviceType"></span></p>
-                    <p><strong>Pick-Up Time:</strong> <span id="pickUpTime"></span></p>
-                    <p><strong>Reason:</strong> <span id="reason"></span></p>
-                    <p><strong>Address:</strong> <span id="address"></span></p>
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card mb-3">
-                                <div class="card-header">
-                                    <h5>Your Driver</h5>
-                                </div>
-                                <div class="card-body text-center">
-                                    <img id="driverImage" src="" class="img-thumbnail mb-2"
-                                         style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;"
-                                         alt="Driver Photo">
-                                    <h5 id="driverName"></h5>
-                                    <p><i class="fas fa-phone"></i> <span id="driverPhone"></span></p>
-                                    <p><span class="badge bg-info" id="driverService"></span></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5>Your Vehicle</h5>
-                                </div>
-                                <div class="card-body text-center">
-                                    <img id="vehicleImage" src="" class="img-thumbnail mb-2"
-                                         style="width: 150px; height: 150px; object-fit: cover;"
-                                         alt="Vehicle Photo">
-                                    <h5 id="vehicleType"></h5>
-                                    <p><i class="fas fa-car"></i> <span id="vehicleReg"></span></p>
-                                    <p><span class="badge bg-info" id="vehicleService"></span></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
+            <p><strong>Date Booked:</strong> <span id="bookingDate"></span></p>
+            <p><strong>Pick-Up Time:</strong> <span id="pickUpTime"></span></p>
+            <p><strong>Address:</strong> <span id="address"></span></p>
         </div>
-        <div class="card-footer">
-            <a href="@Url.Action("HomePage", "Booking")" class="btn btn-primary">Return Home</a>
-            <a href="@Url.Action("RideHistory", "Booking")" class="btn btn-secondary ml-2">View Ride History</a>
+    </div>
+
+    <!-- Driver Details Card -->
+    <div class="card">
+        <h5 class="card-header">Driver Details</h5>
+        <div class="card-body text-center">
+            <img id="driverImage" src="" alt="Driver" class="img-thumbnail driver-photo" />
+            <h5 id="driverName"></h5>
+            <p><strong>Phone Number:</strong> <span id="driverPhone"></span></p>
         </div>
+    </div>
+
+    <!-- Ambulance Details Card -->
+    <div class="card">
+        <h5 class="card-header">Ambulance Details</h5>
+        <div class="card-body text-center">
+            <img src="~/Images/ambulance-icon.png" alt="Ambulance Icon" class="vehicle-photo" style="width: 100px;" />
+            <h5 id="vehicleType"></h5>
+            <p><strong>Registration Number:</strong> <span id="vehicleReg"></span></p>
+        </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="text-center mt-4">
+        <a href="@Url.Action("HomePage", "Booking")" class="btn btn-primary">Return Home</a>
+        <a href="@Url.Action("RideHistory", "Booking")" class="btn btn-secondary ml-2">View Ride History</a>
     </div>
 </div>
 
@@ -68,44 +55,26 @@
         $(document).ready(function () {
             const urlParams = new URLSearchParams(window.location.search);
             const bookingId = urlParams.get('bookingId');
-
-            // Use the exact key passed in the URL (either emergency_ or booking_)
             const bookingKey = bookingId;
 
             if (bookingKey && localStorage.getItem(bookingKey + '_serviceType')) {
-                // Get complete driver data
                 const driverData = localStorage.getItem(bookingKey + '_driverData')?.split('|') || [];
 
-                // Display driver info
                 $('#driverName').text(driverData[0] + ' ' + driverData[1]);
                 $('#driverPhone').text(driverData[2]);
-                $('#driverService').text(driverData[3]);
 
-                // Set driver image
                 const driverImage = localStorage.getItem(bookingKey + '_driverImage') ||
-                                   (driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg');
+                    (driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg');
                 $('#driverImage').attr('src', driverImage);
 
-                // Display vehicle info
                 $('#vehicleType').text(localStorage.getItem(bookingKey + '_vehicleType'));
                 $('#vehicleReg').text(localStorage.getItem(bookingKey + '_vehicleReg'));
-                $('#vehicleService').text(localStorage.getItem(bookingKey + '_vehicleService'));
 
-                // Set vehicle image
-                // Set vehicle image
-                const vehicleImage = localStorage.getItem(bookingKey + '_vehicleImage') ||
-                    (vehicleData.length > 3 ? vehicleData[3] : '/Content/images/default-vehicle.jpg');
-                $('#vehicleImage').attr('src', vehicleImage);
-
-                // Display booking details
                 $('#bookingId').text(localStorage.getItem(bookingKey + '_id'));
-                $('#serviceType').text(localStorage.getItem(bookingKey + '_serviceType'));
                 $('#bookingDate').text(new Date(localStorage.getItem(bookingKey + '_date')).toLocaleString());
                 $('#pickUpTime').text(localStorage.getItem(bookingKey + '_pickUpTime'));
-                $('#reason').text(localStorage.getItem(bookingKey + '_reason'));
                 $('#address').text(localStorage.getItem(bookingKey + '_address'));
 
-                // Set emergency badge if needed
                 if (bookingKey.startsWith('emergency_') || localStorage.getItem(bookingKey + '_isEmergency') === 'true') {
                     $('#bookingDetails').prepend(
                         '<div class="alert alert-danger mb-3">EMERGENCY BOOKING</div>'
@@ -122,19 +91,3 @@
         });
     </script>
 }
-
-<style>
-    .img-thumbnail {
-        border: 3px solid #dee2e6;
-    }
-
-    .card {
-        margin-bottom: 20px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .badge {
-        font-size: 0.9em;
-        padding: 5px 10px;
-    }
-</style>

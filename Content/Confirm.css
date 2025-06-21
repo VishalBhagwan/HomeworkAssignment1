@@ -1,0 +1,70 @@
+﻿body {
+    background-color: #f2f2f2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#bookingDetails {
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #5a4ca7;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.img-thumbnail {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.vehicle-photo {
+    width: 100px;
+    margin: 10px auto;
+}
+
+.badge {
+    font-size: 0.85rem;
+    background-color: #e0e7ff;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.alert-danger {
+    border-radius: 10px;
+}
+
+.mt-4 {
+    margin-top: 2rem !important;
+}
+
+.title-icon {
+    width: 80px;
+    height: auto;
+    mix-blend-mode: multiply;
+}
