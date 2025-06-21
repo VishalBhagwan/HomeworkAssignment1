@@ -5,115 +5,110 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2>Edit Vehicle</h2>
-    <hr />
+<link href="~/Content/Manage.css" rel="stylesheet" />
 
-    @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data", id = "editVehicleForm" }))
-    {
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(model => model.vehicleID)
-        @Html.Hidden("isFromLocalStorage", true)
+<div class="container mt-5">
+    <div class="management-card mx-auto" style="max-width: 700px;">
+        <div class="text-center mb-4">
+            <img src="~/Images/HLogo.jpg" alt="Logo" class="title-icon mb-2" />
+            <h2>Edit Vehicle</h2>
+            <hr />
+        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.vehicleImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                <input type="file" id="vehicleImageFile" class="form-control-file" accept="image/*" />
+        @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new
+        {
+            @class = "form-horizontal",
+            role = "form",
+            enctype = "multipart/form-data",
+            id = "editVehicleForm"
+        }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.vehicleID)
+            @Html.Hidden("isFromLocalStorage", true)
+
+            <div class="mb-3">
+                <label class="form-label" for="vehicleImageFile">Vehicle Image</label>
+                <input type="file" id="vehicleImageFile" class="form-control" accept="image/*" />
                 @Html.HiddenFor(model => model.vehicleImage, new { id = "vehicleImage" })
-                <div id="imagePreview" class="mt-2" style="max-width: 150px;">
+                <div id="imagePreview" class="mt-2">
                     @if (!string.IsNullOrEmpty(Model.vehicleImage))
                     {
-                        <img src="@Model.vehicleImage" class="img-thumbnail" />
+                        <img src="@Model.vehicleImage" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />
                     }
                 </div>
                 @Html.ValidationMessageFor(model => model.vehicleImage, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.vehicleType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.vehicleType, new { htmlAttributes = new { @class = "form-control" } })
+            <div class="mb-3">
+                <label class="form-label" for="vehicleType">Vehicle Type</label>
+                @Html.TextBoxFor(model => model.vehicleType, new { @class = "form-control", id = "vehicleType" })
                 @Html.ValidationMessageFor(model => model.vehicleType, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.vehicleRegistration, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.vehicleRegistration, new { htmlAttributes = new { @class = "form-control" } })
+            <div class="mb-3">
+                <label class="form-label" for="vehicleRegistration">Registration</label>
+                @Html.TextBoxFor(model => model.vehicleRegistration, new { @class = "form-control", id = "vehicleRegistration" })
                 @Html.ValidationMessageFor(model => model.vehicleRegistration, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.vehicleServiceType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
+            <div class="mb-4">
+                <label class="form-label" for="vehicleServiceType">Service Type</label>
                 @Html.DropDownListFor(model => model.vehicleServiceType,
                     new SelectList(HomeworkAssignment1.Models.Services.serviceTypes),
                     "Select Service Type",
-                    new { @class = "form-control" })
+                    new { @class = "form-control", id = "vehicleServiceType" })
                 @Html.ValidationMessageFor(model => model.vehicleServiceType, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Save Changes
-                </button>
-                <a href="@Url.Action("ManagePage")" class="btn btn-secondary">
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("ManagePage")" class="btn btn-secondary rounded-pill px-4">
                     <i class="fas fa-times"></i> Cancel
                 </a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     <script>
-        $(document).ready(function() {
-            // Get vehicle ID from URL
+        $(document).ready(function () {
             const urlParams = new URLSearchParams(window.location.search);
             const vehicleId = urlParams.get('id');
 
-            // Load vehicle data from localStorage
             if (vehicleId) {
                 const vehicleData = localStorage.getItem('vehicle_' + vehicleId);
                 if (vehicleData) {
                     const fields = vehicleData.split('|');
-
-                    // Set form values
                     $('#vehicleType').val(fields[0]);
                     $('#vehicleRegistration').val(fields[1]);
                     $('#vehicleServiceType').val(fields[2]);
 
-                    // Handle image if exists
                     if (fields.length > 3 && fields[3]) {
                         $('#vehicleImage').val(fields[3]);
-                        $('#imagePreview').html(`<img src="${fields[3]}" class="img-thumbnail" />`);
+                        $('#imagePreview').html(`<img src="${fields[3]}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);
                     }
                 }
             }
 
-            // Image file change handler
-            $('#vehicleImageFile').change(function() {
+            $('#vehicleImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
-                    if (file.size > 500000) { // 500KB limit
+                    if (file.size > 500000) {
                         alert('Image size should be less than 500KB');
                         $(this).val('');
                         return;
                     }
 
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        // Display preview
-                        $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
-                        // Store base64 in hidden field
+                    reader.onload = function (e) {
+                        $('#imagePreview').html(`<img src="${e.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);
                         $('#vehicleImage').val(e.target.result);
-                    }
+                    };
                     reader.readAsDataURL(file);
                 }
             });

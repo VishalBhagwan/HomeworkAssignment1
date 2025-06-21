@@ -5,70 +5,64 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2>Add New Driver</h2>
-    <hr />
+<link href="~/Content/Manage.css" rel="stylesheet" />
 
-    @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
-    {
-        @Html.AntiForgeryToken()
+<div class="container mt-5">
+    <div class="management-card mx-auto" style="max-width: 700px;">
+        <div class="text-center mb-4">
+            <h2>Add New Driver</h2>
+            <hr />
+        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.driverImage, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                <input type="file" id="driverImageFile" class="form-control-file" accept="image/*" />
+        @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label" for="driverImageFile">Driver Image</label>
+                <input type="file" id="driverImageFile" class="form-control" accept="image/*" />
                 @Html.HiddenFor(model => model.driverImage)
-                <div id="imagePreview" class="mt-2" style="max-width: 150px;"></div>
+                <div id="imagePreview" class="mt-2"></div>
                 @Html.ValidationMessageFor(model => model.driverImage, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.driverFirstName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.driverFirstName, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter first name" } })
+            <div class="mb-3">
+                <label class="form-label" for="driverFirstName">First Name</label>
+                @Html.TextBoxFor(model => model.driverFirstName, new { @class = "form-control", id = "driverFirstName", placeholder = "Enter first name" })
                 @Html.ValidationMessageFor(model => model.driverFirstName, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.driverLastName, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.driverLastName, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter last name" } })
+            <div class="mb-3">
+                <label class="form-label" for="driverLastName">Last Name</label>
+                @Html.TextBoxFor(model => model.driverLastName, new { @class = "form-control", id = "driverLastName", placeholder = "Enter last name" })
                 @Html.ValidationMessageFor(model => model.driverLastName, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.driverPhoneNumber, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.driverPhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "(123) 456-7890" } })
+            <div class="mb-3">
+                <label class="form-label" for="driverPhoneNumber">Phone Number</label>
+                @Html.TextBoxFor(model => model.driverPhoneNumber, new { @class = "form-control", id = "driverPhoneNumber", placeholder = "(123) 456-7890" })
                 @Html.ValidationMessageFor(model => model.driverPhoneNumber, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            @Html.LabelFor(model => model.driverServiceType, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
+            <div class="mb-4">
+                <label class="form-label" for="driverServiceType">Service Type</label>
                 @Html.DropDownListFor(model => model.driverServiceType,
                     new SelectList(HomeworkAssignment1.Models.Services.serviceTypes),
                     "Select Service Type",
-                    new { @class = "form-control" })
+                    new { @class = "form-control", id = "driverServiceType" })
                 @Html.ValidationMessageFor(model => model.driverServiceType, "", new { @class = "text-danger" })
             </div>
-        </div>
 
-        <div class="form-group row">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-success mr-2">
-                    <i class="fas fa-user-plus"></i> Add Driver
-                </button>
-                <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary">
+            <div class="d-flex justify-content-between">
+                <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary rounded-pill px-4">
                     <i class="fas fa-times"></i> Cancel
                 </a>
+                <button type="submit" class="btn btn-success rounded-pill px-4">
+                    <i class="fas fa-user-plus"></i> Add Driver
+                </button>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @section Scripts {
@@ -76,14 +70,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
     <script>
         $(document).ready(function () {
-            // Phone number masking
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
 
-            // Image preview and conversion
             $('#driverImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
-                    if (file.size > 500000) { // 500KB limit
+                    if (file.size > 500000) {
                         alert('Image size should be less than 500KB');
                         $(this).val('');
                         return;
@@ -91,11 +83,9 @@
 
                     const reader = new FileReader();
                     reader.onload = function (e) {
-                        // Display preview
-                        $('#imagePreview').html(`<img src="${e.target.result}" class="img-thumbnail" />`);
-                        // Store base64 in hidden field
+                        $('#imagePreview').html(`<img src="${e.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);
                         $('#driverImage').val(e.target.result);
-                    }
+                    };
                     reader.readAsDataURL(file);
                 } else {
                     $('#imagePreview').html('');

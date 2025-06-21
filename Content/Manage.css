@@ -56,6 +56,7 @@
     align-items: center;
     padding: 12px 20px;
     border-bottom: 1px solid #f5f5f5;
+    gap: 10px;
 }
 
     .card-row.header {
@@ -66,15 +67,28 @@
         background: #f9fafc;
     }
 
+    .card-row .text-center {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .card-row .btn {
+        padding: 5px 12px;
+        white-space: nowrap;
+    }
+
     /* Driver avatar image */
-    .card-row img {
+    .card-row img:not(.vehicle-thumbnail) {
         width: 40px;
         height: 40px;
         border-radius: 50%;
         object-fit: cover;
     }
 
+
 /* Action buttons */
+
 .btn.edit-driver,
 .btn.edit-vehicle {
     background-color: #f4c430;
@@ -114,5 +128,65 @@
     margin-left: auto;
 }
 
+#vehiclesList + .text-end {
+    margin-top: 20px;
+}
 
 
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    transition: border-color 0.2s;
+}
+
+    .form-control:focus {
+        border-color: #3c82f4;
+        box-shadow: 0 0 0 0.15rem rgba(60, 130, 244, 0.25);
+    }
+
+.img-thumbnail {
+    border-radius: 12px;
+    width: 100px;
+    height: 120px;
+}
+
+.btn {
+    border-radius: 999px !important;
+    font-weight: 500;
+    padding: 8px 20px;
+}
+
+.btn-primary {
+    background-color: #3c82f4;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn i {
+    margin-right: 6px;
+}
+
+.preview-img {
+    max-width: 100px;
+    max-height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.card-row .vehicle-thumbnail {
+    width: 50px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border-radius: 0 !important;
+    display: block;
+}

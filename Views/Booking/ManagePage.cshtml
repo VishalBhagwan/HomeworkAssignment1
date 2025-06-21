@@ -112,24 +112,29 @@
     </div>
 </div>
 
-    <div class="management-card">
-        <div class="card-header">
-            <h3>Vehicles</h3>
-            <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
-        </div>
-
-        <div class="card-row header">
-            <div>Image</div>
-            <div>Type</div>
-            <div>Registration</div>
-            <div>Service</div>
-            <div>Actions</div>
-        </div>
-
-        <div id="vehiclesList">
-            <!-- Will be populated by JavaScript -->
-        </div>
+<div class="management-card">
+    <div class="card-header">
+        <h3>Vehicles</h3>
+        <a href="@Url.Action("AddVehicle", "Booking")" class="btn btn-primary">Add Vehicle</a>
     </div>
+
+    <div class="card-row header bg-light rounded-top">
+        <div>IMAGE</div>
+        <div>TYPE</div>
+        <div>REGISTRATION</div>
+        <div>SERVICE</div>
+        <div class="text-center">CONTROLS</div>
+    </div>
+
+
+    <div id="vehiclesList">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <div class="text-end mt-3">
+        <button id="exportVehiclesBtn" class="btn btn-success">Export Vehicles</button>
+    </div>
+</div>
 </div>
 
 @section scripts {
@@ -241,7 +246,7 @@
             <div>${phone}</div>
             <div>${service}</div>
             <div class="text-center">
-                <button class="btn edit-driver" data-id="${id}">Update</button>
+                <button class="btn edit-driver" data-id="${id}">Edit</button>
                 <button class="btn delete-driver" data-id="${id}">Delete</button>
             </div>
         </div>
@@ -250,23 +255,24 @@
 
 
         function addVehicleRow(id, type, registration, service, image) {
-            const imageHtml = image ?
-                `<img src="${image}" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" />` :
-                '<div class="text-muted">No image</div>';
+            const imageHtml = image
+                ? `<img src="${image}" alt="Vehicle Image" class="vehicle-thumbnail" />`
+                : '<div class="text-muted">No image</div>';
 
-            $('#vehiclesList').append(
-                '<tr>' +
-                '<td>' + imageHtml + '</td>' +
-                '<td>' + type + '</td>' +
-                '<td>' + registration + '</td>' +
-                '<td>' + service + '</td>' +
-                '<td>' +
-                '<button class="btn btn-primary edit-vehicle" data-id="' + id + '">Edit</button>' +
-                '<button class="btn btn-danger delete-vehicle ml-2" data-id="' + id + '">Delete</button>' +
-                '</td>' +
-                '</tr>'
-            );
+            $('#vehiclesList').append(`
+        <div class="card-row" data-service="${service}">
+            <div>${imageHtml}</div>
+            <div>${type}</div>
+            <div>${registration}</div>
+            <div>${service}</div>
+            <div class="text-center">
+                <button class="btn edit-vehicle" data-id="${id}">Edit</button>
+                <button class="btn delete-vehicle" data-id="${id}">Delete</button>
+            </div>
+        </div>
+    `);
         }
+
 
         //Select the correct columns by index
         function searchDrivers() {
@@ -292,6 +298,32 @@
                 $(this).toggle(serviceType === selectedService);
             });
         }
+
+        $('#exportVehiclesBtn').click(function () {
+            let content = 'ID\tType\tRegistration\tService\n';
+
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('vehicle_')) {
+                    let vehicleId = key.replace('vehicle_', '');
+                    let vehicleData = localStorage.getItem(key).split('|');
+                    if (vehicleData.length >= 3) {
+                        const [type, registration, service] = vehicleData;
+                        content += `${vehicleId}\t${type}\t${registration}\t${service}\n`;
+                    }
+                }
+            }
+
+            // Create a Blob and trigger download
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vehicles.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
 
     </script>
 }

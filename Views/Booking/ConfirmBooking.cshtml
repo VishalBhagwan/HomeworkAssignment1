@@ -37,7 +37,7 @@
     <div class="card">
         <h5 class="card-header">Ambulance Details</h5>
         <div class="card-body text-center">
-            <img src="~/Images/ambulance-icon.png" alt="Ambulance Icon" class="vehicle-photo" style="width: 100px;" />
+            <img id = "vehicleImage" src ="" alt="Vehicle" class="img-thumbmail vehicle-photo" style="width: 100px;" />
             <h5 id="vehicleType"></h5>
             <p><strong>Registration Number:</strong> <span id="vehicleReg"></span></p>
         </div>
@@ -62,13 +62,16 @@
 
                 $('#driverName').text(driverData[0] + ' ' + driverData[1]);
                 $('#driverPhone').text(driverData[2]);
-
                 const driverImage = localStorage.getItem(bookingKey + '_driverImage') ||
                     (driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg');
                 $('#driverImage').attr('src', driverImage);
 
                 $('#vehicleType').text(localStorage.getItem(bookingKey + '_vehicleType'));
                 $('#vehicleReg').text(localStorage.getItem(bookingKey + '_vehicleReg'));
+                const vehicleImage = localStorage.getItem(bookingKey + '_vehicleImage') ||
+                    (vehicleData.length > 3 ? driverData[3] : '/Content/images/default-driver.jpg');
+                $('#vehicleImage').attr('src', vehicleImage);
+
 
                 $('#bookingId').text(localStorage.getItem(bookingKey + '_id'));
                 $('#bookingDate').text(new Date(localStorage.getItem(bookingKey + '_date')).toLocaleString());
