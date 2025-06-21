@@ -18,6 +18,7 @@
         {
             @Html.AntiForgeryToken()
 
+            <!-- Where the driver image is uploaded and can be previewed-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleImageFile">Vehicle Image</label>
                 <input type="file" id="vehicleImageFile" class="form-control" accept="image/*" />
@@ -26,18 +27,21 @@
                 @Html.ValidationMessageFor(model => model.vehicleImage, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the driver vehicle type is entered-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleType">Vehicle Type</label>
                 @Html.TextBoxFor(model => model.vehicleType, new { @class = "form-control", id = "vehicleType", placeholder = "Enter vehicle type" })
                 @Html.ValidationMessageFor(model => model.vehicleType, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the vehicle registration is entered-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleRegistration">Registration</label>
                 @Html.TextBoxFor(model => model.vehicleRegistration, new { @class = "form-control", id = "vehicleRegistration", placeholder = "Enter registration" })
                 @Html.ValidationMessageFor(model => model.vehicleRegistration, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the vehicle service type is selected-->
             <div class="mb-4">
                 <label class="form-label" for="vehicleServiceType">Service Type</label>
                 @Html.DropDownListFor(model => model.vehicleServiceType,
@@ -47,6 +51,7 @@
                 @Html.ValidationMessageFor(model => model.vehicleServiceType, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Redirect to the manage page if vehcile added successfully-->
             <div class="d-flex justify-content-between">
                 <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary rounded-pill px-4">
                     <i class="fas fa-times"></i> Cancel
@@ -63,15 +68,18 @@
     @Scripts.Render("~/bundles/jqueryval")
     <script>
         $(document).ready(function () {
+            //Loads the image selected by the user
             $('#vehicleImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
+                    //When a user select an image, makes sure it is under 500kb
                     if (file.size > 500000) {
                         alert('Image size should be less than 500KB');
                         $(this).val('');
                         return;
                     }
 
+                    //Displays the image and can be saved to local storage
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         $('#imagePreview').html(`<img src="${e.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);

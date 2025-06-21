@@ -93,6 +93,7 @@
                         return;
                     }
 
+                    //Displays the image and can be saved to local storage
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         $('#imagePreview').html(`<img src="${e.target.result}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);

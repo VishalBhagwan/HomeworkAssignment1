@@ -9,24 +9,20 @@
 
 <div class="container mt-5">
     <div class="management-card mx-auto" style="max-width: 700px;">
+        <!-- Header at top of page-->
         <div class="text-center mb-4">
             <img src="~/Images/HLogo.jpg" alt="Logo" class="title-icon mb-2" />
             <h2>Edit Vehicle</h2>
             <hr />
         </div>
 
-        @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new
-        {
-            @class = "form-horizontal",
-            role = "form",
-            enctype = "multipart/form-data",
-            id = "editVehicleForm"
-        }))
+        @using (Html.BeginForm("UpdateVehicle", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data", id = "editVehicleForm" }))
         {
             @Html.AntiForgeryToken()
             @Html.HiddenFor(model => model.vehicleID)
             @Html.Hidden("isFromLocalStorage", true)
 
+            <!-- Loads the image of the vehicle, and change be changed-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleImageFile">Vehicle Image</label>
                 <input type="file" id="vehicleImageFile" class="form-control" accept="image/*" />
@@ -40,18 +36,21 @@
                 @Html.ValidationMessageFor(model => model.vehicleImage, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Loads the vehicle type, and change be changed-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleType">Vehicle Type</label>
                 @Html.TextBoxFor(model => model.vehicleType, new { @class = "form-control", id = "vehicleType" })
                 @Html.ValidationMessageFor(model => model.vehicleType, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Loads the vehicle registration, and change be changed-->
             <div class="mb-3">
                 <label class="form-label" for="vehicleRegistration">Registration</label>
                 @Html.TextBoxFor(model => model.vehicleRegistration, new { @class = "form-control", id = "vehicleRegistration" })
                 @Html.ValidationMessageFor(model => model.vehicleRegistration, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Loads the vehicle service type, and change be changed-->
             <div class="mb-4">
                 <label class="form-label" for="vehicleServiceType">Service Type</label>
                 @Html.DropDownListFor(model => model.vehicleServiceType,
@@ -61,6 +60,7 @@
                 @Html.ValidationMessageFor(model => model.vehicleServiceType, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Redirect to the manage page if vehicle is edited and saved successfully-->
             <div class="d-flex justify-content-between">
                 <a href="@Url.Action("ManagePage")" class="btn btn-secondary rounded-pill px-4">
                     <i class="fas fa-times"></i> Cancel
@@ -77,17 +77,22 @@
     @Scripts.Render("~/bundles/jqueryval")
     <script>
         $(document).ready(function () {
+            //Gets the vehicle ID from the URL
             const urlParams = new URLSearchParams(window.location.search);
             const vehicleId = urlParams.get('id');
 
+            //Loads the vehicle data from localStorage using the vehicle ID
             if (vehicleId) {
                 const vehicleData = localStorage.getItem('vehicle_' + vehicleId);
                 if (vehicleData) {
                     const fields = vehicleData.split('|');
+
+                    //Populates the data into the form so it can be edited
                     $('#vehicleType').val(fields[0]);
                     $('#vehicleRegistration').val(fields[1]);
                     $('#vehicleServiceType').val(fields[2]);
 
+                    //Loads the stored image if it exists
                     if (fields.length > 3 && fields[3]) {
                         $('#vehicleImage').val(fields[3]);
                         $('#imagePreview').html(`<img src="${fields[3]}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px;" />`);
@@ -95,6 +100,7 @@
                 }
             }
 
+            //Changes the image if a new image is selected
             $('#vehicleImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
