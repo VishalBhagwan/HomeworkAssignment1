@@ -94,9 +94,10 @@
                             phone: driverData[2],
                             serviceType: driverData[3],
                             image: driverData.length > 4 ? driverData[4] : '/Content/images/default-driver.jpg'
-                        });
+                        });//Modifies the orginal array and returns the new length
                     }
                 }
+                //
 
                 //Vehicles
                 if (key.startsWith('vehicle_')) {
@@ -136,7 +137,7 @@
             $('#bookingForm').submit(function(e) {
                 e.preventDefault();
 
-                //Get selected driver and vehicle
+                //Get selected driver and vehicle and save it to the booking
                 const selectedDriverId = $('#driver').val();
                 const selectedDriver = drivers.find(d => d.driverID === selectedDriverId);
                 const selectedVehicleId = $('#vehicle').val();
@@ -173,13 +174,13 @@
                 localStorage.setItem(bookingKey + '_vehicleService', selectedVehicle.serviceType);
                 localStorage.setItem(bookingKey + '_vehicleImage', selectedVehicle.image);
 
-                // Update bookings list
+                //Update bookings list
                 let bookings = localStorage.getItem('bookingKeys') || '';
                 if (bookings) bookings += ',';
                 localStorage.setItem('bookingKeys', bookings + bookingKey);
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                //Redirects to confirmation with booking ID
+                //Redirects to confirmation using booking ID
                 window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
 
