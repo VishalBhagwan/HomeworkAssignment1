@@ -6,9 +6,9 @@
 </head>
 
 <div class="container-fluid">
-    <!-- First Row - Top Quadrants -->
+    <!-- First row-->
     <div class="row">
-        <!-- Top Left Quadrant - Book Ambulance Content -->
+        <!-- Top left -> Book ambulance content-->
         <div class="col-md-6 p-5 top-left-quadrant">
             <div class="text-center h-100 d-flex flex-column justify-content-center">
                 <h1 class="display-4 mb-4">The best team try and save you</h1>
@@ -17,22 +17,22 @@
             </div>
         </div>
 
-        <!-- Top Right Quadrant - Image -->
+        <!-- Top right -> Image-->
         <div class="col-md-6 p-0">
             <img src="~/Images/Hospital.jpg" alt="Ambulance" class="img-fluid w-100 h-100" style="object-fit: cover;">
         </div>
     </div>
 
-    <!-- Second Row - Bottom Quadrants -->
+    <!-- Second row-->
     <div class="row">
-        <!-- Bottom Left Quadrant - SOS Button as Image -->
+        <!-- Bottom left -> SOS button-->
         <div class="col-md-6 p-0">
             <button id="sosButton" class="btn p-0 border-0 w-100 h-100">
                 <img src="~/Images/SOS.jpg" alt="Emergency SOS" class="img-fluid w-100 h-100" style="object-fit: cover;">
             </button>
         </div>
 
-        <!-- Bottom Right Quadrant - Text Content -->
+        <!-- Bottom right -> Text-->
         <div class="col-md-6 p-5 bottom-right-quadrant">
             <div class="h-100 d-flex flex-column justify-content-center">
                 <h1 class="display-4 mb-4">EMERGENCY?</h1>
@@ -46,11 +46,11 @@
 @section scripts {
     <script>
         $(document).ready(function () {
-            // S.O.S button click handler
+            //S.O.S button click
             $("#sosButton").click(function(e) {
                 e.preventDefault();
 
-                // Get service types from server
+                //Gets service types from model
                 const serviceTypes = [
                     @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
                     {
@@ -58,14 +58,14 @@
                     }
                 ];
 
-                // Get available drivers and vehicles with images
+                //Get available drivers and vehicles with images from local storage
                 const availableDrivers = [];
                 const availableVehicles = [];
 
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
 
-                    // Check for drivers (including those with images)
+                    //Checks for drivers and gets their data
                     if (key.startsWith('driver_')) {
                         const driverData = localStorage.getItem(key).split('|');
                         if (driverData.length >= 4) {
@@ -81,7 +81,7 @@
                         }
                     }
 
-                    // Check for vehicles (including those with images)
+                    //Checks for vehicles and gets its data
                     if (key.startsWith('vehicle_')) {
                         const vehicleData = localStorage.getItem(key).split('|');
                         if (vehicleData.length >= 3) {
@@ -97,12 +97,12 @@
                     }
                 }
 
-                // Try each service type until we find one with available drivers and vehicles
+                //Try each service type until we find one with an available driver and vehicle
                 let selectedService = null;
                 let serviceDrivers = [];
                 let serviceVehicles = [];
 
-                // Shuffle service types to randomize selection
+                //Randomly select a service type and a driver & vehicle of the same service type
                 const shuffledServices = [...serviceTypes].sort(() => 0.5 - Math.random());
 
                 for (const service of shuffledServices) {
@@ -120,14 +120,13 @@
                     return;
                 }
 
-                // Select random driver and vehicle
+                //Randomly select a driver and vehicle 
                 const randomDriver = serviceDrivers[Math.floor(Math.random() * serviceDrivers.length)];
                 const randomVehicle = serviceVehicles[Math.floor(Math.random() * serviceVehicles.length)];
 
-                // Create booking key
+                //Create booking object in local storage
                 const bookingKey = 'emergency_' + Date.now();
 
-                // Store booking data in localStorage
                 localStorage.setItem(bookingKey + '_serviceType', selectedService);
                 localStorage.setItem(bookingKey + '_id', generateGUID());
                 localStorage.setItem(bookingKey + '_fullName', 'EMERGENCY PATIENT');
@@ -140,30 +139,31 @@
                 localStorage.setItem(bookingKey + '_driverId', randomDriver.driverID);
                 localStorage.setItem(bookingKey + '_vehicleId', randomVehicle.vehicleID);
 
-                // Store complete driver data including image
+                //Store driver data
                 localStorage.setItem(bookingKey + '_driverData',
                     `${randomDriver.firstName}|${randomDriver.lastName}|${randomDriver.phone}|${randomDriver.serviceType}|${randomDriver.image}`);
                 localStorage.setItem(bookingKey + '_driverImage', randomDriver.image);
 
-                // Store complete vehicle data including image
+                //Store complete vehicle data
                 localStorage.setItem(bookingKey + '_vehicleType', randomVehicle.vehicleType);
                 localStorage.setItem(bookingKey + '_vehicleReg', randomVehicle.registration);
                 localStorage.setItem(bookingKey + '_vehicleService', randomVehicle.serviceType);
                 localStorage.setItem(bookingKey + '_vehicleImage', randomVehicle.image);
 
-                // Add to bookings list
+                //Add to bookings list
                 let bookings = localStorage.getItem('bookingKeys') || '';
                 if (bookings) bookings += ',';
                 bookings += bookingKey;
                 localStorage.setItem('bookingKeys', bookings);
 
-                // Set as current booking
+                //Set as current booking
                 localStorage.setItem('currentBookingKey', bookingKey);
 
-                // Redirect to confirmation page with full key
+                //Redirect to confirmation page if successful
                 window.location.href = '@Url.Action("ConfirmBooking", "Booking")?bookingId=' + bookingKey;
             });
 
+            //Generates a unique ID for each booking
             function generateGUID() {
                 return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                     const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
