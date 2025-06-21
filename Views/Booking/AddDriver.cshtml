@@ -1,11 +1,15 @@
 ﻿@model HomeworkAssignment1.Models.Driver
-
+<!-- Uses variables from the Driver model -->
+<!-- -->
 @{
     ViewBag.Title = "Add New Driver";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link href="~/Content/Manage.css" rel="stylesheet" />
+<head>
+    <link href="~/Content/Manage.css" rel="stylesheet" />
+</head>
+
 
 <div class="container mt-5">
     <div class="management-card mx-auto" style="max-width: 700px;">
@@ -14,10 +18,11 @@
             <hr />
         </div>
 
-        @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form", enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("AddDriver", "Booking", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
         {
             @Html.AntiForgeryToken()
 
+            <!-- Where the driver image is uploaded and can be previewed-->
             <div class="mb-3">
                 <label class="form-label" for="driverImageFile">Driver Image</label>
                 <input type="file" id="driverImageFile" class="form-control" accept="image/*" />
@@ -26,24 +31,28 @@
                 @Html.ValidationMessageFor(model => model.driverImage, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the driver first name is entered-->
             <div class="mb-3">
                 <label class="form-label" for="driverFirstName">First Name</label>
                 @Html.TextBoxFor(model => model.driverFirstName, new { @class = "form-control", id = "driverFirstName", placeholder = "Enter first name" })
                 @Html.ValidationMessageFor(model => model.driverFirstName, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the driver last name is entered-->
             <div class="mb-3">
                 <label class="form-label" for="driverLastName">Last Name</label>
                 @Html.TextBoxFor(model => model.driverLastName, new { @class = "form-control", id = "driverLastName", placeholder = "Enter last name" })
                 @Html.ValidationMessageFor(model => model.driverLastName, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the driver phone number is entered-->
             <div class="mb-3">
                 <label class="form-label" for="driverPhoneNumber">Phone Number</label>
                 @Html.TextBoxFor(model => model.driverPhoneNumber, new { @class = "form-control", id = "driverPhoneNumber", placeholder = "(123) 456-7890" })
                 @Html.ValidationMessageFor(model => model.driverPhoneNumber, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Where the driver service type is selected-->
             <div class="mb-4">
                 <label class="form-label" for="driverServiceType">Service Type</label>
                 @Html.DropDownListFor(model => model.driverServiceType,
@@ -53,6 +62,7 @@
                 @Html.ValidationMessageFor(model => model.driverServiceType, "", new { @class = "text-danger" })
             </div>
 
+            <!-- Redirect to the manage page once driver added successfully-->
             <div class="d-flex justify-content-between">
                 <a href="@Url.Action("ManagePage", "Booking")" class="btn btn-secondary rounded-pill px-4">
                     <i class="fas fa-times"></i> Cancel
@@ -72,9 +82,11 @@
         $(document).ready(function () {
             $('#driverPhoneNumber').inputmask('(999) 999-9999');
 
+            //Loads the image selected by the user
             $('#driverImageFile').change(function () {
                 const file = this.files[0];
                 if (file) {
+                    //When a user select an image, makes sure it is under 500kb
                     if (file.size > 500000) {
                         alert('Image size should be less than 500KB');
                         $(this).val('');
