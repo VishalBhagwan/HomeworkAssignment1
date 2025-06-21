@@ -9,20 +9,21 @@
     <link rel="stylesheet" href="~/css/RideHistory.css" />
 </head>
 
-<!-- Page Header -->
+<!-- Header-->
 <div class="ride-history-header text-center">
     <img src="~/Images/Clock.jpg" alt="Ride History Icon" class="ride-icon" />
     <h2>Ride History</h2>
 </div>
 
 
-<!-- Container for bookings -->
+<!-- Container for bookings to be filled by JavaScript-->
 <div id="rideHistory"></div>
 
 
 @section scripts {
     <script>
         $(document).ready(function () {
+            //Check if bookings exist in localStorage
             const bookingKeys = localStorage.getItem('bookingKeys');
             if (!bookingKeys) {
                 $('#rideHistory').html('<div class="alert alert-info">No bookings found</div>');
@@ -32,9 +33,11 @@
             let html = '';
             const keys = bookingKeys.split(',');
 
+            //Loop through each booking
             keys.forEach(key => {
                 if (!key) return;
 
+                //Gets the data
                 const date = new Date(localStorage.getItem(key + '_date'));
                 const isEmergency = key.startsWith('emergency_') || localStorage.getItem(key + '_isEmergency') === 'true';
 
@@ -46,6 +49,7 @@
                 const vehicleData = localStorage.getItem('vehicle_' + localStorage.getItem(key + '_vehicleId'))?.split('|') || [];
                 const vehicleType = vehicleData[0] || localStorage.getItem(key + '_vehicleType') || 'Unknown Vehicle';
 
+                //Puts the data in the card and displays it in HTML
                 html += `
                     <div class="card mb-3 ${isEmergency ? 'border-danger' : ''}">
                         <div class="card-body">
@@ -61,9 +65,9 @@
                     </div>
                 `;
             });
-
             $('#rideHistory').html(html);
 
+            //Opens the confirmed booking view for the specific booking
             $(document).on('click', '.view-booking', function () {
                 const bookingKey = $(this).data('key');
                 localStorage.setItem('currentBookingKey', bookingKey);
