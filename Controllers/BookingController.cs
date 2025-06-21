@@ -78,9 +78,6 @@ namespace HomeworkAssignment1.Controllers
         [HttpPost]
         public ActionResult EmergencyBooking(string serviceType)
         {
-            var allDrivers = new List<Driver>();
-            var allVehicles = new List<Vehicle>();
-
             var matchingDrivers = new List<Driver>();
             var matchingVehicles = new List<Vehicle>();         
 
