@@ -9,6 +9,7 @@ namespace HomeworkAssignment1.Models
 {
     public class Booking
     {
+        //Variables
         public string serviceType { get; set; }
         public string bookingID {  get; set; } = Guid.NewGuid().ToString();
         public string bookingFullName { get; set; }

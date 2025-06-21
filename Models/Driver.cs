@@ -7,6 +7,7 @@ namespace HomeworkAssignment1.Models
 {
     public class Driver
     {
+        //Variables
         public string driverID {  get; set; } = Guid.NewGuid().ToString();
         public string driverImage { get; set; }
         public string driverFirstName { get; set; }

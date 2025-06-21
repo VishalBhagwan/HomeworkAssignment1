@@ -2,13 +2,13 @@
     ViewBag.Title = "Select Service";
 
     var serviceDescriptions = new Dictionary<string, string>
-    {
-        { "ALS (Advanced Life Support)", "Standard medical transport with basic life support equipment and EMTs" },
-        { "BLS (Basic Life Support)", "Ambulance staffed with paramedics and advanced medical equipment" },
-        { "Patient Transport", "Specialized ambulance for newborns with incubator and neonatal team" },
-        { "Medical Utility Vehicle", "Wider vehicle with reinforced stretchers for larger patients" },
-        { "Event Medical Ambulance", "Secure transport with trained mental health professionals" },
-        { "Air Ambulance", "dhssudh"}
+{
+        { "ALS (Advanced Life Support)", "Ambulance staffed with paramedics and advanced medical equipment" },
+        { "BLS (Basic Life Support)", "Standard medical transport with basic life support equipment and EMTs" },
+        { "Patient Transport", "Basic equipment to move a patient from one location to another" },
+        { "Medical Utility Vehicle", "Wide array of medical utility to respond to a broad amount of emergencies" },
+        { "Event Medical Ambulance", "Ambulance avialable to be on standby at a requested event" },
+        { "Air Ambulance", "Ambulance for patients in difficult to reach areas"}
     };
 }
 
@@ -17,7 +17,7 @@
 </head>
 
 <h2>Select a service...</h2>
-<p>Lorem ipsum dolor sit amet consectetur adipiscing elit semper dalar elementum tempus hac tellus libero accumsan.</p>
+<p>Select the service that caters to your needs the best, and we will send our team to help you!</p>
 
 <div class="row">
     @foreach (var service in HomeworkAssignment1.Models.Services.serviceTypes)
@@ -33,5 +33,3 @@
         </div>
     }
 </div>
-
-

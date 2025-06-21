@@ -7,6 +7,7 @@ namespace HomeworkAssignment1.Models
 {
     public class Vehicle
     {
+        //Variables
         public string vehicleID { get; set; } = Guid.NewGuid().ToString();
         public string vehicleImage {  get; set; }
         public string vehicleType { get; set; }

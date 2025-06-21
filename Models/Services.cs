@@ -7,6 +7,7 @@ namespace HomeworkAssignment1.Models
 {
     public class Services
     {
+        //Variable
         public static List<string> serviceTypes = new List<string>
         {
             "ALS (Advanced Life Support)",
