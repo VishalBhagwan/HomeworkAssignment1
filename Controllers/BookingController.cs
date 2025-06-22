@@ -75,47 +75,6 @@ namespace HomeworkAssignment1.Controllers
             return RedirectToAction("ConfirmBooking");
         }
 
-        [HttpPost]
-        public ActionResult EmergencyBooking(string serviceType)
-        {
-            var matchingDrivers = new List<Driver>();
-            var matchingVehicles = new List<Vehicle>();         
-
-            //Select random driver and vehicle
-            var random = new Random();
-            var selectedDriver = matchingDrivers[random.Next(matchingDrivers.Count)];
-            var selectedVehicle = matchingVehicles[random.Next(matchingVehicles.Count)];
-
-            //Create the emergency booking
-            var booking = new Booking
-            {
-                serviceType = serviceType,
-                bookingID = Guid.NewGuid().ToString(),
-                bookingFullName = "EMERGENCY PATIENT",
-                bookingPhoneNumber = "000-000-0000",
-                bookingPickUp = DateTime.Now.AddMinutes(15),
-                bookingReason = "Emergency",
-                bookingPickupAddress = "Emergency Location",
-                bookingDate = DateTime.Now,
-                isEmergency = true,
-                driverID = selectedDriver.driverID,
-                vehicleID = selectedVehicle.vehicleID
-            };
-
-            //Store booking in localStorage
-            var bookingData = $"{booking.serviceType}|{booking.bookingFullName}|{booking.bookingPhoneNumber}|" +
-                            $"{booking.bookingPickUp}|{booking.bookingReason}|{booking.bookingPickupAddress}|" +
-                            $"{booking.bookingDate}|{booking.isEmergency}|{booking.driverID}|{booking.vehicleID}";
-
-            TempData["NewBooking"] = $"{booking.bookingID}|{bookingData}";
-            TempData["BookingAdded"] = true;
-
-            return Content(
-                $"DriverSelected={selectedDriver.driverID}&VehicleSelected={selectedVehicle.vehicleID}",
-                "text/plain"
-            );
-        }
-
         //Ride History
         public ActionResult RideHistory()
         {
