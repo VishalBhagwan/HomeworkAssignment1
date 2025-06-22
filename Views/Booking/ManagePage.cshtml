@@ -14,7 +14,7 @@
         <h2>Driver and Vehicle Management</h2>
     </div>
 
-    <!-- TempData passes the temporary data from the controller after adds, updates or deletes data to JavaScript to be stored in localStorage-->
+    <!-- TempData passes the temporary data from the controller after it adds, updates or deletes data to JavaScript to be stored in localStorage-->
     @if (TempData["DriverAdded"] != null && (bool)TempData["DriverAdded"])
     {
         <script>
@@ -174,12 +174,14 @@
             });
 
             //Vehicle button handlers
+            //Opens the EditVehicle page, and uses the driver ID to know what data to load
             $(document).on('click', '.edit-vehicle', function(e) {
                 e.preventDefault();
                 var vehicleId = $(this).data('id');
                 window.location.href = '@Url.Action("EditVehicle")?id=' + vehicleId + '&fromLocal=true';
             });
 
+            //Deletes the vehicle, and uses the vehicle ID to know what data to delete
             $(document).on('click', '.delete-vehicle', function() {
                 var vehicleId = $(this).data('id');
 
@@ -296,7 +298,7 @@
         function filterByServiceType() {
             var selectedService = $('#serviceTypeFilter').val();
             if (!selectedService) {
-                $('#driversList .card-row').show(); // Show all if no filter
+                $('#driversList .card-row').show(); //Show all if there is no filter
                 return;
             }
 
